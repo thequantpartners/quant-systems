@@ -31,7 +31,7 @@ export default function ThankYouPage() {
         <div className="success-mark" aria-hidden="true">✓</div>
         <p className="eyebrow">Evaluación recibida</p>
         <h1>Gracias por dar<br /><em>el primer paso.</em></h1>
-        <p className="thankyou-lede">Recibimos tus datos. Revisaremos si tu operación encaja con un sistema de ventas instalado desde US$500.</p>
+        <p className="thankyou-lede">Recibimos tus datos. Revisaremos si tu operación encaja con una implementación desde US$300.</p>
         <div className="vip-offer"><span className="section-kicker">SIGUIENTE PASO</span><h2>Conversemos sobre el tramo entre tu anuncio y <em>la venta.</em></h2><div className="offer-actions"><a className="primary-cta" href={whatsappUrl} target="_blank" rel="noreferrer" onClick={trackWhatsApp}>Hablar por WhatsApp <span aria-hidden="true">↗</span></a><a className="secondary-cta" href={calUrl} target="_blank" rel="noreferrer" onClick={trackCalendar}>Reservar una conversación <span aria-hidden="true">↗</span></a></div></div>
       </section>
     </main>

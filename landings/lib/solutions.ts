@@ -9,6 +9,7 @@ export type Solution = {
   integrations: string[];
   metrics: string[];
   price: string;
+  referencePrice?: string;
 };
 
 export const solutions: Solution[] = [
@@ -25,7 +26,8 @@ export const solutions: Solution[] = [
       "Una operación visible para que cada consulta tenga responsable, contexto y próximo paso antes de que se enfríe.",
     integrations: ["Urbania / Adondevivir", "WhatsApp", "Google Sheets", "Google Ads y Meta Ads"],
     metrics: ["Tiempo de primera respuesta", "Leads sin seguimiento", "Visitas agendadas"],
-    price: "Desde US$500"
+    price: "Desde US$300",
+    referencePrice: "US$500"
   },
   {
     slug: "operacion-ecommerce-multicanal",

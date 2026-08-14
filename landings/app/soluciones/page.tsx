@@ -51,6 +51,10 @@ export default function SolutionsPage() {
                 <p className="solution-vertical">{solution.vertical}</p>
                 <h3>{solution.title}</h3>
                 <p className="solution-problem">{solution.problem}</p>
+                <p className="solution-price">
+                  <strong>{solution.price}</strong>
+                  {solution.referencePrice ? <> <del>{solution.referencePrice}</del> precio de referencia.</> : null}
+                </p>
               </div>
               <Link className="text-link" href={`/soluciones/${solution.slug}`}>
                 Ver si encaja <span aria-hidden="true">↗</span>

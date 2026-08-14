@@ -35,7 +35,13 @@ export default function SolutionDetailPage({ params }: { params: { slug: string 
             <h1>{solution.title}</h1>
             <p className="story-lede">{solution.story}</p>
             <Link className="primary-cta" href={`/implementar?solution=${solution.slug}`}>Quiero revisar esto <span aria-hidden="true">↗</span></Link>
-            <p className="microcopy">Implementación desde {solution.price.replace("Desde ", "")}. El alcance final se confirma antes de construir.</p>
+            <p className="microcopy price-note">
+              <strong>{solution.price}</strong>
+              {solution.referencePrice ? (
+                <> <del>{solution.referencePrice}</del> precio de referencia.</>
+              ) : null}
+              {" "}El alcance final se confirma antes de construir.
+            </p>
           </div>
           <div className="impact-panel">
             <span className="section-kicker">EL CUELLO DE BOTELLA</span>
