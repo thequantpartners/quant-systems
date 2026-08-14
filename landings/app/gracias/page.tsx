@@ -22,11 +22,11 @@ export default function ThankYouPage() {
     track("schedule_calcom", attribution);
   }
 
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hola, quiero conocer el acceso anticipado de Quant Setters.")}`;
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hola, quiero conocer las implementaciones de Quant Systems.")}`;
 
   return (
     <main className="thankyou-page">
-      <nav className="site-nav shell" aria-label="Navegación principal"><a className="brand" href="/"><span className="brand-mark" aria-hidden="true">Q</span><span>quant setters</span></a></nav>
+      <nav className="site-nav shell" aria-label="Navegación principal"><a className="brand" href="/"><span className="brand-mark" aria-hidden="true">Q</span><span>quant systems</span></a></nav>
       <section className="thankyou-content shell">
         <div className="success-mark" aria-hidden="true">✓</div>
         <p className="eyebrow">Evaluación recibida</p>

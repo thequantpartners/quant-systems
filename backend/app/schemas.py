@@ -1,3 +1,4 @@
+import re
 from typing import Any
 from uuid import UUID
 
@@ -19,6 +20,17 @@ class ImplementationRequestCreate(BaseModel):
     impact_summary: dict[str, Any] = Field(default_factory=dict)
     idempotency_key: str | None = Field(default=None, max_length=255)
 
+    @field_validator("name", "company", "tools", "bottleneck", "frequency")
+    @classmethod
+    def validate_meaningful_text(cls, value: str) -> str:
+        normalized = " ".join(value.split())
+        alphanumeric_count = len(re.findall(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]", normalized))
+        if alphanumeric_count < 4 or re.fullmatch(r"(.)\1+", normalized, flags=re.IGNORECASE):
+            raise ValueError("Escribe una respuesta concreta para poder evaluar la solicitud.")
+        if re.match(r"^(asdf|qwerty|test|xxxx|1234)", normalized, flags=re.IGNORECASE):
+            raise ValueError("Escribe una respuesta concreta para poder evaluar la solicitud.")
+        return normalized
+
     @field_validator("phone")
     @classmethod
     def validate_phone(cls, value: str) -> str:
@@ -32,6 +44,20 @@ class ImplementationRequestCreate(BaseModel):
     def validate_consent(cls, value: bool) -> bool:
         if not value:
             raise ValueError("Debes aceptar el aviso de privacidad para continuar.")
+        return value
+
+    @field_validator("impact_summary")
+    @classmethod
+    def validate_impact_summary(cls, value: dict[str, Any]) -> dict[str, Any]:
+        for field_name in ("consequence", "desired_outcome"):
+            field_value = value.get(field_name)
+            if not isinstance(field_value, str):
+                raise ValueError("Completa el contexto del problema y la mejora deseada.")
+            normalized = " ".join(field_value.split())
+            alphanumeric_count = len(re.findall(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]", normalized))
+            if alphanumeric_count < 4 or re.fullmatch(r"(.)\1+", normalized, flags=re.IGNORECASE):
+                raise ValueError("Escribe respuestas concretas para poder evaluar la solicitud.")
+            value[field_name] = normalized
         return value
 
 

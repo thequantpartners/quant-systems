@@ -48,7 +48,7 @@ export async function POST(request: Request) {
   const normalizedPhone = phone.replace(/\s/g, "");
 
   // Temporary validation sink: replace with the approved lead store before production launch.
-  console.info("Quant Setters early access lead", {
+  console.info("Quant Systems early access lead", {
     ...payload,
     phone: normalizedPhone
   });

@@ -12,6 +12,7 @@ type Diagnostic = {
   tools: string;
   bottleneck: string;
   frequency: string;
+  monthlyAdSpend: string;
   impactConsequence: string;
   desiredOutcome: string;
 };
@@ -21,6 +22,7 @@ const initialDiagnostic: Diagnostic = {
   tools: "",
   bottleneck: "",
   frequency: "",
+  monthlyAdSpend: "",
   impactConsequence: "",
   desiredOutcome: ""
 };
@@ -30,6 +32,7 @@ export default function ImplementPage() {
   const [diagnostic, setDiagnostic] = useState(initialDiagnostic);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [error, setError] = useState("");
+  const [diagnosticError, setDiagnosticError] = useState("");
   const [requestId, setRequestId] = useState("");
   const [contact, setContact] = useState({ name: "", company: "", phone: "" });
 
@@ -48,6 +51,17 @@ export default function ImplementPage() {
 
   function continueToContact(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const textFields = [diagnostic.tools, diagnostic.bottleneck, diagnostic.impactConsequence, diagnostic.desiredOutcome];
+    const hasLowQualityText = textFields.some((value) => {
+      const normalized = value.trim().toLowerCase();
+      const alphanumericCount = (normalized.match(/[a-záéíóúüñ0-9]/g) ?? []).length;
+      return alphanumericCount < 4 || /^(.)\1+$/.test(normalized) || /^(asdf|qwerty|test|xxxx|1234)/i.test(normalized);
+    });
+    if (hasLowQualityText) {
+      setDiagnosticError("Cuéntanos el problema con palabras concretas para poder evaluar si podemos ayudarte.");
+      return;
+    }
+    setDiagnosticError("");
     track("complete_diagnostic", readAttribution());
     setStep(2);
   }
@@ -66,7 +80,8 @@ export default function ImplementPage() {
     const attribution = readAttribution();
     const impactSummary = {
       consequence: diagnostic.impactConsequence,
-      desired_outcome: diagnostic.desiredOutcome
+      desired_outcome: diagnostic.desiredOutcome,
+      monthly_ad_spend: diagnostic.monthlyAdSpend
     };
     const payload = {
       ...contact,
@@ -140,7 +155,7 @@ export default function ImplementPage() {
 
     return (
       <main className="thankyou-page">
-        <nav className="site-nav shell" aria-label="Navegación principal"><Link className="brand" href="/"><span className="brand-mark" aria-hidden="true">Q</span><span>quant setters</span></Link></nav>
+        <nav className="site-nav shell" aria-label="Navegación principal"><Link className="brand" href="/"><span className="brand-mark" aria-hidden="true">Q</span><span>quant systems</span></Link></nav>
         <section className="thankyou-content shell">
           <div className="success-mark" aria-hidden="true">✓</div>
           <p className="eyebrow">Diagnóstico recibido</p>
@@ -162,7 +177,7 @@ export default function ImplementPage() {
 
   return (
     <main>
-      <nav className="site-nav shell" aria-label="Navegación principal"><Link className="brand" href="/soluciones"><span className="brand-mark" aria-hidden="true">Q</span><span>quant setters</span></Link><span className="nav-context">Filtro {step} de 2</span></nav>
+      <nav className="site-nav shell" aria-label="Navegación principal"><Link className="brand" href="/"><span className="brand-mark" aria-hidden="true">Q</span><span>quant systems</span></Link><span className="nav-context">Diagnóstico {step} de 2</span></nav>
       {step === 1 ? (
         <section className="implementation-layout shell">
           <div className="implementation-intro"><p className="eyebrow"><span className="status-dot" aria-hidden="true" /> Primero el problema</p><h1>¿Dónde se está yendo <em>el dinero o el tiempo?</em></h1><p className="hero-lede">No te pediremos contacto todavía. Primero queremos saber si existe un problema concreto que valga la pena resolver.</p><p className="site-legal">Este diagnóstico toma menos de dos minutos y no garantiza ROI, ventas ni resultados específicos.</p></div>
@@ -171,20 +186,22 @@ export default function ImplementPage() {
             <label className="field"><span>¿Qué herramientas ya usas?</span><textarea required value={diagnostic.tools} onChange={(event) => updateDiagnostic("tools", event.target.value)} rows={3} placeholder="Ej. WhatsApp, Sheets, MercadoLibre..." /></label>
             <label className="field"><span>¿Qué cuello de botella quieres eliminar?</span><textarea required value={diagnostic.bottleneck} onChange={(event) => updateDiagnostic("bottleneck", event.target.value)} rows={4} placeholder="Describe qué se pierde, retrasa o duplica." /></label>
             <label className="field"><span>¿Con qué frecuencia ocurre?</span><select required value={diagnostic.frequency} onChange={(event) => updateDiagnostic("frequency", event.target.value)}><option value="">Selecciona una opción</option><option>Todos los días</option><option>Varias veces por semana</option><option>Algunas veces al mes</option><option>No lo sé todavía</option></select></label>
+            <label className="field"><span>¿Cuánto inviertes al mes en anuncios?</span><select required value={diagnostic.monthlyAdSpend} onChange={(event) => updateDiagnostic("monthlyAdSpend", event.target.value)}><option value="">Selecciona una opción</option><option>No invierto todavía</option><option>Menos de US$300</option><option>US$300–US$999</option><option>US$1,000–US$2,999</option><option>US$3,000 o más</option><option>No lo sé</option></select></label>
             <label className="field"><span>¿Qué consecuencia tiene hoy?</span><textarea required value={diagnostic.impactConsequence} onChange={(event) => updateDiagnostic("impactConsequence", event.target.value)} rows={3} placeholder="Ej. ventas que no se siguen, citas que se pierden..." /></label>
             <label className="field"><span>¿Qué te gustaría que ocurra?</span><textarea required value={diagnostic.desiredOutcome} onChange={(event) => updateDiagnostic("desiredOutcome", event.target.value)} rows={3} placeholder="Describe una mejora operativa concreta." /></label>
-            <button className="submit-button" type="submit">Ver qué entendimos <span aria-hidden="true">↗</span></button>
+            {diagnosticError && <p className="form-error" role="alert">{diagnosticError}</p>}
+            <button className="submit-button" type="submit">Ver resumen del diagnóstico <span aria-hidden="true">↗</span></button>
           </form>
         </section>
       ) : (
         <section className="implementation-layout shell">
-          <div className="implementation-intro"><p className="eyebrow"><span className="status-dot" aria-hidden="true" /> Segundo filtro</p><h1>Esto es lo que <em>entendimos.</em></h1><div className="impact-panel"><span className="section-kicker">TU OPERACIÓN</span><p><strong>{solutionName}</strong> usa {diagnostic.tools} y enfrenta este cuello de botella:</p><p>{diagnostic.bottleneck}</p><div className="impact-rule" /><span className="section-kicker">LO QUE QUIERES CAMBIAR</span><p>{diagnostic.desiredOutcome}</p></div><button className="secondary-cta" type="button" onClick={() => setStep(1)}>Editar diagnóstico</button></div>
+          <div className="implementation-intro"><p className="eyebrow"><span className="status-dot" aria-hidden="true" /> Resumen del diagnóstico</p><h1>Esto es lo que <em>entendimos.</em></h1><div className="impact-panel"><span className="section-kicker">TU OPERACIÓN</span><p><strong>{solutionName}</strong> usa {diagnostic.tools} y enfrenta este cuello de botella:</p><p>{diagnostic.bottleneck}</p><div className="impact-rule" /><span className="section-kicker">SEÑALES DE CONTEXTO</span><p>Ocurre: {diagnostic.frequency}. Inversión mensual en anuncios: {diagnostic.monthlyAdSpend}.</p><div className="impact-rule" /><span className="section-kicker">LO QUE QUIERES CAMBIAR</span><p>{diagnostic.desiredOutcome}</p></div><button className="secondary-cta" type="button" onClick={() => setStep(1)}>Editar diagnóstico</button></div>
           <form className="implementation-form" onSubmit={submit}>
             <p className="form-footnote">Si este resumen te representa, déjanos un contacto para continuar la conversación.</p>
             <label className="field"><span>Nombre</span><input required value={contact.name} onChange={(event) => updateContact("name", event.target.value)} autoComplete="name" /></label>
             <label className="field"><span>Empresa</span><input required value={contact.company} onChange={(event) => updateContact("company", event.target.value)} autoComplete="organization" /></label>
             <label className="field"><span>WhatsApp</span><input required value={contact.phone} onChange={(event) => updateContact("phone", event.target.value)} type="tel" placeholder="+51 9XXXXXXXX" autoComplete="tel" /></label>
-            <label className="consent"><input required name="consent" type="checkbox" /> <span>Acepto que Quant Setters use estos datos para evaluar el encaje y contactarme. <Link href="/privacidad">Aviso de privacidad</Link>.</span></label>
+            <label className="consent"><input required name="consent" type="checkbox" /> <span>Acepto que Quant Systems use estos datos para evaluar el encaje y contactarme. <Link href="/privacidad">Aviso de privacidad</Link>.</span></label>
             {status === "error" && <p className="form-error" role="alert">{error}</p>}
             <button className="submit-button" disabled={status === "submitting"} type="submit">{status === "submitting" ? "Guardando..." : "Continuar por WhatsApp"} <span aria-hidden="true">↗</span></button>
           </form>

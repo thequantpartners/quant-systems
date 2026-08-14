@@ -25,7 +25,7 @@ export default function SolutionDetailPage({ params }: { params: { slug: string 
     <main>
       <SolutionTracker slug={solution.slug} />
       <nav className="site-nav shell" aria-label="Navegación principal">
-        <Link className="brand" href="/soluciones"><span className="brand-mark" aria-hidden="true">Q</span><span>quant setters</span></Link>
+        <Link className="brand" href="/"><span className="brand-mark" aria-hidden="true">Q</span><span>quant systems</span></Link>
         <Link className="nav-link" href="/soluciones">Todas las soluciones <span aria-hidden="true">↗</span></Link>
       </nav>
       <article className="solution-detail shell">
@@ -61,7 +61,7 @@ export default function SolutionDetailPage({ params }: { params: { slug: string 
             <div className="metric-line">{solution.metrics.map((metric) => <span key={metric}>{metric}</span>)}</div>
           </section>
         </div>
-        <p className="site-legal solution-disclaimer">Las métricas son indicadores operativos, no una promesa de resultados. La implementación depende del acceso, disponibilidad y condiciones de las herramientas del cliente. Quant Setters no está afiliado a las plataformas mencionadas.</p>
+        <p className="site-legal solution-disclaimer">Las métricas son indicadores operativos, no una promesa de resultados. La implementación depende del acceso, disponibilidad y condiciones de las herramientas del cliente. Quant Systems no está afiliado a las plataformas mencionadas.</p>
       </article>
     </main>
   );

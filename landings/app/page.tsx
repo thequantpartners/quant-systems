@@ -1,1 +1,1 @@
-export { default } from "./soluciones/page";
+export { default, metadata } from "./soluciones/page";

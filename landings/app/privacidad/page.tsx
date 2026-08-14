@@ -1,23 +1,23 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Aviso de privacidad | Quant Setters",
-  description: "Información sobre el uso de datos de contacto en Quant Setters."
+  title: "Aviso de privacidad | Quant Systems",
+  description: "Información sobre el uso de datos de contacto en Quant Systems."
 };
 
 export default function PrivacyPage() {
   return (
     <main className="legal-page shell">
       <nav className="site-nav" aria-label="Navegación principal">
-        <a className="brand" href="/" aria-label="Quant Setters, inicio">
+        <a className="brand" href="/" aria-label="Quant Systems, inicio">
           <span className="brand-mark" aria-hidden="true">Q</span>
-          <span>quant setters</span>
+          <span>quant systems</span>
         </a>
       </nav>
       <article className="legal-content">
         <p className="section-kicker">INFORMACIÓN LEGAL</p>
         <h1>Aviso de privacidad</h1>
-        <p>Quant Setters, operado por The Quant Partners, usa los datos enviados en el formulario para evaluar si existe encaje con nuestros servicios de implementación de sistemas de ventas y para responder a la solicitud.</p>
+        <p>Quant Systems, operado por The Quant Partners, usa los datos enviados en el formulario para evaluar si existe encaje con nuestros servicios de implementación de sistemas de ventas y para responder a la solicitud.</p>
         <h2>Datos que podemos recibir</h2>
         <p>Nombre, empresa, cargo, correo, teléfono o WhatsApp, información sobre campañas de generación de clientes potenciales, volumen aproximado de leads, inversión publicitaria y valor promedio de venta.</p>
         <h2>Cómo usamos los datos</h2>

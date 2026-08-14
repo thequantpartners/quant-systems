@@ -8,6 +8,7 @@ type ImplementationRequest = {
   tools?: string;
   bottleneck?: string;
   frequency?: string;
+  impactSummary?: Record<string, string>;
   consentAccepted?: boolean;
   attribution?: Record<string, string>;
 };
@@ -26,8 +27,16 @@ export async function POST(request: Request) {
   if (!phonePattern.test(payload.phone ?? "")) {
     return NextResponse.json({ error: "Usa un teléfono peruano válido (+51 9XXXXXXXX)." }, { status: 400 });
   }
+  const textFields = [payload.name, payload.company, payload.tools, payload.bottleneck, payload.frequency];
+  if (textFields.some((value) => {
+    const normalized = value?.trim().toLowerCase() ?? "";
+    const alphanumericCount = (normalized.match(/[a-záéíóúüñ0-9]/g) ?? []).length;
+    return alphanumericCount < 4 || /^(.)\1+$/.test(normalized) || /^(asdf|qwerty|test|xxxx|1234)/i.test(normalized);
+  })) {
+    return NextResponse.json({ error: "Escribe respuestas concretas para poder evaluar la solicitud." }, { status: 400 });
+  }
 
   // Temporary sink: production persistence must be configured before paid traffic.
-  console.info("Quant Setters implementation request", payload);
+  console.info("Quant Systems implementation request", payload);
   return NextResponse.json({ ok: true });
 }

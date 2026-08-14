@@ -14,7 +14,7 @@ export default function SolutionsPage() {
       <nav className="site-nav shell" aria-label="Navegación principal">
         <Link className="brand" href="/">
           <span className="brand-mark" aria-hidden="true">Q</span>
-          <span>quant setters</span>
+          <span>quant systems</span>
         </Link>
         <span className="nav-context">Catálogo de implementaciones</span>
       </nav>
@@ -76,9 +76,9 @@ export default function SolutionsPage() {
       </section>
 
       <footer className="site-footer shell">
-        <Link className="brand" href="/"><span className="brand-mark" aria-hidden="true">Q</span><span>quant setters</span></Link>
+        <Link className="brand" href="/"><span className="brand-mark" aria-hidden="true">Q</span><span>quant systems</span></Link>
         <Link href="/privacidad">Privacidad</Link>
-        <p className="site-legal">Quant Setters ofrece implementaciones y soporte de sistemas operativos comerciales. No somos Google, Meta, MercadoLibre, Shopify, Urbania ni Adondevivir, ni estamos afiliados con esas empresas. No garantizamos ingresos, ventas, ROI ni resultados específicos.</p>
+        <p className="site-legal">Quant Systems ofrece implementaciones y soporte de sistemas operativos comerciales. No somos Google, Meta, MercadoLibre, Shopify, Urbania ni Adondevivir, ni estamos afiliados con esas empresas. No garantizamos ingresos, ventas, ROI ni resultados específicos.</p>
       </footer>
     </main>
   );
