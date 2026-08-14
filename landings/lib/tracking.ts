@@ -9,6 +9,7 @@ export type TrackingEvent =
   | "view_solution"
   | "submit_implementation_request"
   | "complete_diagnostic"
+  | "disqualify_diagnostic"
   | "click_whatsapp_implementation";
 
 export function track(event: TrackingEvent, parameters: Attribution = {}) {

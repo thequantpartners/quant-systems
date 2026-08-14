@@ -13,6 +13,7 @@ type Diagnostic = {
   bottleneck: string;
   frequency: string;
   monthlyAdSpend: string;
+  implementationBudget: string;
   impactConsequence: string;
   desiredOutcome: string;
 };
@@ -23,6 +24,7 @@ const initialDiagnostic: Diagnostic = {
   bottleneck: "",
   frequency: "",
   monthlyAdSpend: "",
+  implementationBudget: "",
   impactConsequence: "",
   desiredOutcome: ""
 };
@@ -33,6 +35,7 @@ export default function ImplementPage() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [error, setError] = useState("");
   const [diagnosticError, setDiagnosticError] = useState("");
+  const [qualificationStatus, setQualificationStatus] = useState<"pending" | "qualified" | "not-fit">("pending");
   const [requestId, setRequestId] = useState("");
   const [contact, setContact] = useState({ name: "", company: "", phone: "" });
 
@@ -62,6 +65,18 @@ export default function ImplementPage() {
       return;
     }
     setDiagnosticError("");
+    const score =
+      (solutions.some((item) => item.slug === diagnostic.solution) ? 2 : 0) +
+      (["Todos los días", "Varias veces por semana"].includes(diagnostic.frequency) ? 2 : 1) +
+      (["US$300–US$999", "US$1,000–US$2,999", "US$3,000 o más"].includes(diagnostic.monthlyAdSpend) ? 2 : diagnostic.monthlyAdSpend === "Menos de US$300" ? 1 : 0) +
+      (["US$300–US$499", "US$500–US$999", "US$1,000–US$2,999", "US$3,000 o más"].includes(diagnostic.implementationBudget) ? 3 : diagnostic.implementationBudget === "Todavía no lo tengo separado" ? 0 : 1) +
+      (diagnostic.tools.trim().length >= 12 ? 1 : 0);
+    if (score < 6) {
+      track("disqualify_diagnostic", readAttribution());
+      setQualificationStatus("not-fit");
+      return;
+    }
+    setQualificationStatus("qualified");
     track("complete_diagnostic", readAttribution());
     setStep(2);
   }
@@ -81,7 +96,8 @@ export default function ImplementPage() {
     const impactSummary = {
       consequence: diagnostic.impactConsequence,
       desired_outcome: diagnostic.desiredOutcome,
-      monthly_ad_spend: diagnostic.monthlyAdSpend
+      monthly_ad_spend: diagnostic.monthlyAdSpend,
+      implementation_budget: diagnostic.implementationBudget
     };
     const payload = {
       ...contact,
@@ -121,7 +137,8 @@ export default function ImplementPage() {
             bottleneck: diagnostic.bottleneck,
             frequency: diagnostic.frequency,
             consentAccepted,
-            attribution: payload.attribution
+            attribution: payload.attribution,
+            impactSummary
           })
         }
       );
@@ -144,6 +161,21 @@ export default function ImplementPage() {
       setStatus("error");
       setError(submissionError instanceof Error ? submissionError.message : "No pudimos registrar la solicitud.");
     }
+  }
+
+  if (qualificationStatus === "not-fit") {
+    return (
+      <main className="thankyou-page">
+        <nav className="site-nav shell" aria-label="Navegación principal"><Link className="brand" href="/"><span className="brand-mark" aria-hidden="true">Q</span><span>quant systems</span></Link></nav>
+        <section className="thankyou-content shell">
+          <div className="success-mark" aria-hidden="true">✓</div>
+          <p className="eyebrow">Diagnóstico recibido</p>
+          <h1>Gracias por<br /><em>compartirlo.</em></h1>
+          <p className="thankyou-lede">Por ahora no vemos el encaje suficiente para recomendar una implementación. Preferimos decirlo así antes que venderte algo que no necesitas.</p>
+          <Link className="secondary-cta" href="/">Volver al inicio <span aria-hidden="true">↗</span></Link>
+        </section>
+      </main>
+    );
   }
 
   if (status === "success") {
@@ -186,16 +218,17 @@ export default function ImplementPage() {
             <label className="field"><span>¿Qué herramientas ya usas?</span><textarea required value={diagnostic.tools} onChange={(event) => updateDiagnostic("tools", event.target.value)} rows={3} placeholder="Ej. WhatsApp, Sheets, MercadoLibre..." /></label>
             <label className="field"><span>¿Qué cuello de botella quieres eliminar?</span><textarea required value={diagnostic.bottleneck} onChange={(event) => updateDiagnostic("bottleneck", event.target.value)} rows={4} placeholder="Describe qué se pierde, retrasa o duplica." /></label>
             <label className="field"><span>¿Con qué frecuencia ocurre?</span><select required value={diagnostic.frequency} onChange={(event) => updateDiagnostic("frequency", event.target.value)}><option value="">Selecciona una opción</option><option>Todos los días</option><option>Varias veces por semana</option><option>Algunas veces al mes</option><option>No lo sé todavía</option></select></label>
-            <label className="field"><span>¿Cuánto inviertes al mes en anuncios?</span><select required value={diagnostic.monthlyAdSpend} onChange={(event) => updateDiagnostic("monthlyAdSpend", event.target.value)}><option value="">Selecciona una opción</option><option>No invierto todavía</option><option>Menos de US$300</option><option>US$300–US$999</option><option>US$1,000–US$2,999</option><option>US$3,000 o más</option><option>No lo sé</option></select></label>
             <label className="field"><span>¿Qué consecuencia tiene hoy?</span><textarea required value={diagnostic.impactConsequence} onChange={(event) => updateDiagnostic("impactConsequence", event.target.value)} rows={3} placeholder="Ej. ventas que no se siguen, citas que se pierden..." /></label>
             <label className="field"><span>¿Qué te gustaría que ocurra?</span><textarea required value={diagnostic.desiredOutcome} onChange={(event) => updateDiagnostic("desiredOutcome", event.target.value)} rows={3} placeholder="Describe una mejora operativa concreta." /></label>
+            <label className="field"><span>¿Cuánto inviertes al mes en anuncios?</span><select required value={diagnostic.monthlyAdSpend} onChange={(event) => updateDiagnostic("monthlyAdSpend", event.target.value)}><option value="">Selecciona una opción</option><option>No invierto todavía</option><option>Menos de US$300</option><option>US$300–US$999</option><option>US$1,000–US$2,999</option><option>US$3,000 o más</option><option>No lo sé</option></select></label>
+            <label className="field"><span>¿Cuál es el presupuesto que tienes separado si podemos trabajar juntos?</span><select required value={diagnostic.implementationBudget} onChange={(event) => updateDiagnostic("implementationBudget", event.target.value)}><option value="">Selecciona una opción</option><option>Todavía no lo tengo separado</option><option>US$300–US$499</option><option>US$500–US$999</option><option>US$1,000–US$2,999</option><option>US$3,000 o más</option></select></label>
             {diagnosticError && <p className="form-error" role="alert">{diagnosticError}</p>}
             <button className="submit-button" type="submit">Ver resumen del diagnóstico <span aria-hidden="true">↗</span></button>
           </form>
         </section>
       ) : (
         <section className="implementation-layout shell">
-          <div className="implementation-intro"><p className="eyebrow"><span className="status-dot" aria-hidden="true" /> Resumen del diagnóstico</p><h1>Esto es lo que <em>entendimos.</em></h1><div className="impact-panel"><span className="section-kicker">TU OPERACIÓN</span><p><strong>{solutionName}</strong> usa {diagnostic.tools} y enfrenta este cuello de botella:</p><p>{diagnostic.bottleneck}</p><div className="impact-rule" /><span className="section-kicker">SEÑALES DE CONTEXTO</span><p>Ocurre: {diagnostic.frequency}. Inversión mensual en anuncios: {diagnostic.monthlyAdSpend}.</p><div className="impact-rule" /><span className="section-kicker">LO QUE QUIERES CAMBIAR</span><p>{diagnostic.desiredOutcome}</p></div><button className="secondary-cta" type="button" onClick={() => setStep(1)}>Editar diagnóstico</button></div>
+          <div className="implementation-intro"><p className="eyebrow"><span className="status-dot" aria-hidden="true" /> Resumen del diagnóstico</p><h1>Esto es lo que <em>entendimos.</em></h1><div className="impact-panel"><span className="section-kicker">TU OPERACIÓN</span><p><strong>{solutionName}</strong> usa {diagnostic.tools} y enfrenta este cuello de botella:</p><p>{diagnostic.bottleneck}</p><div className="impact-rule" /><span className="section-kicker">SEÑALES DE CONTEXTO</span><p>Ocurre: {diagnostic.frequency}. Inversión mensual en anuncios: {diagnostic.monthlyAdSpend}. Presupuesto separado: {diagnostic.implementationBudget}.</p><div className="impact-rule" /><span className="section-kicker">LO QUE QUIERES CAMBIAR</span><p>{diagnostic.desiredOutcome}</p></div><button className="secondary-cta" type="button" onClick={() => { setQualificationStatus("pending"); setStep(1); }}>Editar diagnóstico</button></div>
           <form className="implementation-form" onSubmit={submit}>
             <p className="form-footnote">Si este resumen te representa, déjanos un contacto para continuar la conversación.</p>
             <label className="field"><span>Nombre</span><input required value={contact.name} onChange={(event) => updateContact("name", event.target.value)} autoComplete="name" /></label>
