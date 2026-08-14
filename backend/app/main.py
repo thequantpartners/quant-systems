@@ -1,5 +1,4 @@
 import hashlib
-import html
 import json
 import logging
 from urllib.error import HTTPError, URLError
@@ -22,41 +21,33 @@ from .schemas import ImplementationRequestCreate, ImplementationRequestResponse
 logger = logging.getLogger(__name__)
 
 
-def send_implementation_alert(request: ImplementationRequest) -> bool:
-    if not settings.resend_api_key or not settings.resend_from_email:
-        logger.warning("Implementation alert not sent: Resend is not configured")
+def send_telegram_alert(request: ImplementationRequest) -> bool:
+    if not settings.telegram_bot_token or not settings.telegram_chat_id:
+        logger.warning("Implementation alert not sent: Telegram is not configured")
         return False
 
-    subject = f"Nueva solicitud de implementación: {request.company}"
-    details = {
-        "Nombre": request.name,
-        "Empresa": request.company,
-        "Correo": request.email or "No registrado",
-        "WhatsApp": request.phone,
-        "Solución": request.solution,
-        "Herramientas": request.tools,
-        "Cuello de botella": request.bottleneck,
-        "Frecuencia": request.frequency,
-    }
-    text_body = "\n".join(f"{label}: {value}" for label, value in details.items())
-    html_body = "<h2>Nueva solicitud de implementación</h2><dl>" + "".join(
-        f"<dt><strong>{html.escape(label)}</strong></dt><dd>{html.escape(value)}</dd>"
-        for label, value in details.items()
-    ) + f"</dl><p>ID: {html.escape(str(request.id))}</p>"
+    message = (
+        "🚨 NUEVO LEAD - QUANT SYSTEMS\n\n"
+        f"Nombre: {request.name}\n"
+        f"Empresa: {request.company}\n"
+        f"Correo: {request.email or 'No registrado'}\n"
+        f"WhatsApp: {request.phone}\n"
+        f"Solución: {request.solution}\n"
+        f"Herramientas: {request.tools}\n"
+        f"Cuello de botella: {request.bottleneck}\n"
+        f"Frecuencia: {request.frequency}\n\n"
+        f"ID: {request.id}"
+    )
     payload = json.dumps(
         {
-            "from": settings.resend_from_email,
-            "to": [settings.alert_to_email],
-            "subject": subject,
-            "text": text_body,
-            "html": html_body,
+            "chat_id": settings.telegram_chat_id,
+            "text": message,
         }
     ).encode("utf-8")
     outbound_request = UrlRequest(
-        "https://api.resend.com/emails",
+        f"https://api.telegram.org/bot{settings.telegram_bot_token}/sendMessage",
         data=payload,
         headers={
-            "Authorization": f"Bearer {settings.resend_api_key}",
             "Content-Type": "application/json",
         },
         method="POST",
@@ -64,13 +55,17 @@ def send_implementation_alert(request: ImplementationRequest) -> bool:
     try:
         with urlopen(outbound_request, timeout=10) as response:
             if response.status < 200 or response.status >= 300:
-                logger.error("Resend returned unexpected status %s", response.status)
+                logger.error("Telegram returned unexpected status %s", response.status)
+                return False
+            telegram_response = json.loads(response.read().decode("utf-8"))
+            if telegram_response.get("ok") is not True:
+                logger.error("Telegram did not accept implementation alert")
                 return False
     except HTTPError as error:
-        logger.error("Resend rejected implementation alert with status %s", error.code)
+        logger.error("Telegram rejected implementation alert with status %s", error.code)
         return False
     except URLError as error:
-        logger.error("Could not reach Resend for implementation alert: %s", error.reason)
+        logger.error("Could not reach Telegram for implementation alert: %s", error.reason)
         return False
     return True
 
@@ -151,7 +146,7 @@ def create_implementation_request(
             return ImplementationRequestResponse(id=existing.id, status=existing.status, created=False)
         raise HTTPException(status_code=503, detail="No pudimos registrar la solicitud.")
     db.refresh(request)
-    notification_sent = send_implementation_alert(request)
+    notification_sent = send_telegram_alert(request)
     return ImplementationRequestResponse(
         id=request.id,
         status=request.status,
