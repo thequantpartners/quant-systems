@@ -1,0 +1,17 @@
+# Local and generated files
+.env
+.env.*
+!.env.example
+node_modules/
+.next/
+.vercel/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+dist/
+build/
+
+# Local PCA state
+.pca/pca.db
+.pca/last-task-context.md
