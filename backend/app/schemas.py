@@ -82,3 +82,4 @@ class ImplementationRequestResponse(BaseModel):
     id: UUID
     status: str
     created: bool
+    notification_sent: bool | None = None

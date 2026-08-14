@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     frontend_origins: str = "http://localhost:3000"
     n8n_implementation_webhook_url: str | None = None
     n8n_webhook_secret: str | None = None
+    resend_api_key: str | None = None
+    resend_from_email: str | None = None
+    alert_to_email: str = "thequantpartners@gmail.com"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

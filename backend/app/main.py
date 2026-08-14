@@ -1,5 +1,10 @@
 import hashlib
+import html
 import json
+import logging
+from urllib.error import HTTPError, URLError
+from urllib.request import Request as UrlRequest
+from urllib.request import urlopen
 from contextlib import asynccontextmanager
 from uuid import UUID
 
@@ -13,6 +18,61 @@ from .config import get_settings
 from .db import Base, engine, get_db
 from .models import ImplementationRequest
 from .schemas import ImplementationRequestCreate, ImplementationRequestResponse
+
+logger = logging.getLogger(__name__)
+
+
+def send_implementation_alert(request: ImplementationRequest) -> bool:
+    if not settings.resend_api_key or not settings.resend_from_email:
+        logger.warning("Implementation alert not sent: Resend is not configured")
+        return False
+
+    subject = f"Nueva solicitud de implementación: {request.company}"
+    details = {
+        "Nombre": request.name,
+        "Empresa": request.company,
+        "Correo": request.email or "No registrado",
+        "WhatsApp": request.phone,
+        "Solución": request.solution,
+        "Herramientas": request.tools,
+        "Cuello de botella": request.bottleneck,
+        "Frecuencia": request.frequency,
+    }
+    text_body = "\n".join(f"{label}: {value}" for label, value in details.items())
+    html_body = "<h2>Nueva solicitud de implementación</h2><dl>" + "".join(
+        f"<dt><strong>{html.escape(label)}</strong></dt><dd>{html.escape(value)}</dd>"
+        for label, value in details.items()
+    ) + f"</dl><p>ID: {html.escape(str(request.id))}</p>"
+    payload = json.dumps(
+        {
+            "from": settings.resend_from_email,
+            "to": [settings.alert_to_email],
+            "subject": subject,
+            "text": text_body,
+            "html": html_body,
+        }
+    ).encode("utf-8")
+    outbound_request = UrlRequest(
+        "https://api.resend.com/emails",
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {settings.resend_api_key}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urlopen(outbound_request, timeout=10) as response:
+            if response.status < 200 or response.status >= 300:
+                logger.error("Resend returned unexpected status %s", response.status)
+                return False
+    except HTTPError as error:
+        logger.error("Resend rejected implementation alert with status %s", error.code)
+        return False
+    except URLError as error:
+        logger.error("Could not reach Resend for implementation alert: %s", error.reason)
+        return False
+    return True
 
 
 @asynccontextmanager
@@ -91,4 +151,10 @@ def create_implementation_request(
             return ImplementationRequestResponse(id=existing.id, status=existing.status, created=False)
         raise HTTPException(status_code=503, detail="No pudimos registrar la solicitud.")
     db.refresh(request)
-    return ImplementationRequestResponse(id=request.id, status=request.status, created=True)
+    notification_sent = send_implementation_alert(request)
+    return ImplementationRequestResponse(
+        id=request.id,
+        status=request.status,
+        created=True,
+        notification_sent=notification_sent,
+    )
