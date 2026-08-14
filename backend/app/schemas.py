@@ -10,12 +10,14 @@ class ImplementationRequestCreate(BaseModel):
 
     name: str = Field(min_length=1, max_length=120)
     company: str = Field(min_length=1, max_length=160)
+    email: str = Field(min_length=5, max_length=254)
     phone: str = Field(min_length=10, max_length=20)
     solution: str = Field(min_length=1, max_length=120)
     tools: str = Field(min_length=1, max_length=3000)
     bottleneck: str = Field(min_length=1, max_length=3000)
     frequency: str = Field(min_length=1, max_length=80)
     consent_accepted: bool
+    contact_consent: bool
     attribution: dict[str, str] = Field(default_factory=dict)
     impact_summary: dict[str, Any] = Field(default_factory=dict)
     idempotency_key: str | None = Field(default=None, max_length=255)
@@ -39,11 +41,26 @@ class ImplementationRequestCreate(BaseModel):
             raise ValueError("Usa un teléfono peruano válido (+51 9XXXXXXXX).")
         return normalized
 
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", normalized):
+            raise ValueError("Usa un correo electrónico válido.")
+        return normalized
+
     @field_validator("consent_accepted")
     @classmethod
     def validate_consent(cls, value: bool) -> bool:
         if not value:
             raise ValueError("Debes aceptar el aviso de privacidad para continuar.")
+        return value
+
+    @field_validator("contact_consent")
+    @classmethod
+    def validate_contact_consent(cls, value: bool) -> bool:
+        if not value:
+            raise ValueError("Debes autorizar el contacto posterior para continuar.")
         return value
 
     @field_validator("impact_summary")

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 type ImplementationRequest = {
   name?: string;
   company?: string;
+  email?: string;
   phone?: string;
   solution?: string;
   tools?: string;
@@ -10,6 +11,7 @@ type ImplementationRequest = {
   frequency?: string;
   impactSummary?: Record<string, string>;
   consentAccepted?: boolean;
+  contactConsent?: boolean;
   attribution?: Record<string, string>;
 };
 
@@ -17,12 +19,18 @@ const phonePattern = /^\+51\s?9\d{8}$/;
 
 export async function POST(request: Request) {
   const payload = (await request.json()) as ImplementationRequest;
-  const required = ["name", "company", "phone", "solution", "tools", "bottleneck", "frequency"] as const;
+  const required = ["name", "company", "email", "phone", "solution", "tools", "bottleneck", "frequency"] as const;
   if (required.some((field) => !payload[field]?.trim())) {
     return NextResponse.json({ error: "Completa todos los campos requeridos." }, { status: 400 });
   }
   if (payload.consentAccepted !== true) {
     return NextResponse.json({ error: "Debes aceptar el aviso de privacidad para continuar." }, { status: 400 });
+  }
+  if (payload.contactConsent !== true) {
+    return NextResponse.json({ error: "Debes autorizar el contacto posterior para continuar." }, { status: 400 });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email ?? "")) {
+    return NextResponse.json({ error: "Usa un correo electrónico válido." }, { status: 400 });
   }
   if (!phonePattern.test(payload.phone ?? "")) {
     return NextResponse.json({ error: "Usa un teléfono peruano válido (+51 9XXXXXXXX)." }, { status: 400 });

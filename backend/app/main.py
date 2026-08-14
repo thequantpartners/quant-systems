@@ -5,7 +5,7 @@ from uuid import UUID
 
 from fastapi import Depends, FastAPI, Header, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -18,6 +18,9 @@ from .schemas import ImplementationRequestCreate, ImplementationRequestResponse
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     Base.metadata.create_all(bind=engine)
+    with engine.begin() as connection:
+        connection.execute(text("ALTER TABLE implementation_requests ADD COLUMN IF NOT EXISTS email VARCHAR(254)"))
+        connection.execute(text("ALTER TABLE implementation_requests ADD COLUMN IF NOT EXISTS contact_consent BOOLEAN NOT NULL DEFAULT FALSE"))
     yield
 
 
@@ -66,11 +69,13 @@ def create_implementation_request(
         idempotency_key=raw_key,
         name=payload.name.strip(),
         company=payload.company.strip(),
+        email=payload.email,
         phone=payload.phone,
         solution=payload.solution.strip(),
         tools=payload.tools.strip(),
         bottleneck=payload.bottleneck.strip(),
         frequency=payload.frequency.strip(),
+        contact_consent=payload.contact_consent,
         attribution_json=json.dumps(payload.attribution, ensure_ascii=True),
         impact_summary_json=json.dumps(payload.impact_summary, ensure_ascii=True),
     )

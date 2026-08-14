@@ -37,7 +37,7 @@ export default function ImplementPage() {
   const [diagnosticError, setDiagnosticError] = useState("");
   const [qualificationStatus, setQualificationStatus] = useState<"pending" | "qualified" | "not-fit">("pending");
   const [requestId, setRequestId] = useState("");
-  const [contact, setContact] = useState({ name: "", company: "", phone: "" });
+  const [contact, setContact] = useState({ name: "", company: "", email: "", phone: "" });
 
   const solutionName = useMemo(
     () => solutions.find((item) => item.slug === diagnostic.solution)?.vertical ?? "una solución por definir",
@@ -87,6 +87,7 @@ export default function ImplementPage() {
     setError("");
     const form = new FormData(event.currentTarget);
     const consentAccepted = form.get("consent") === "on";
+    const contactConsent = form.get("contactConsent") === "on";
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
     const idempotencyKey =
       typeof crypto.randomUUID === "function"
@@ -109,12 +110,14 @@ export default function ImplementPage() {
     const backendPayload = {
       name: contact.name,
       company: contact.company,
+      email: contact.email,
       phone: contact.phone,
       solution: diagnostic.solution,
       tools: diagnostic.tools,
       bottleneck: diagnostic.bottleneck,
       frequency: diagnostic.frequency,
       consent_accepted: consentAccepted,
+      contact_consent: contactConsent,
       attribution,
       impact_summary: impactSummary
     };
@@ -131,12 +134,14 @@ export default function ImplementPage() {
           body: JSON.stringify(apiBaseUrl ? backendPayload : {
             name: contact.name,
             company: contact.company,
+            email: contact.email,
             phone: contact.phone,
             solution: diagnostic.solution,
             tools: diagnostic.tools,
             bottleneck: diagnostic.bottleneck,
             frequency: diagnostic.frequency,
             consentAccepted,
+            contactConsent,
             attribution: payload.attribution,
             impactSummary
           })
@@ -233,8 +238,10 @@ export default function ImplementPage() {
             <p className="form-footnote">Si este resumen te representa, déjanos un contacto para continuar la conversación.</p>
             <label className="field"><span>Nombre</span><input required value={contact.name} onChange={(event) => updateContact("name", event.target.value)} autoComplete="name" /></label>
             <label className="field"><span>Empresa</span><input required value={contact.company} onChange={(event) => updateContact("company", event.target.value)} autoComplete="organization" /></label>
+            <label className="field"><span>Correo</span><input required value={contact.email} onChange={(event) => updateContact("email", event.target.value)} type="email" placeholder="tu@empresa.com" autoComplete="email" /></label>
             <label className="field"><span>WhatsApp</span><input required value={contact.phone} onChange={(event) => updateContact("phone", event.target.value)} type="tel" placeholder="+51 9XXXXXXXX" autoComplete="tel" /></label>
-            <label className="consent"><input required name="consent" type="checkbox" /> <span>Acepto que Quant Systems use estos datos para evaluar el encaje y contactarme. <Link href="/privacidad">Aviso de privacidad</Link>.</span></label>
+            <label className="consent"><input required name="consent" type="checkbox" /> <span>Acepto el <Link href="/privacidad">aviso de privacidad</Link> y el uso de mis datos para evaluar esta solicitud.</span></label>
+            <label className="consent"><input required name="contactConsent" type="checkbox" /> <span>Autorizo a Quant Systems a contactarme después por correo electrónico, WhatsApp o llamada sobre esta solicitud.</span></label>
             {status === "error" && <p className="form-error" role="alert">{error}</p>}
             <button className="submit-button" disabled={status === "submitting"} type="submit">{status === "submitting" ? "Guardando..." : "Continuar por WhatsApp"} <span aria-hidden="true">↗</span></button>
           </form>
