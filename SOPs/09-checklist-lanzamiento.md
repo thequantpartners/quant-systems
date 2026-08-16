@@ -16,7 +16,7 @@ datos (el presupuesto y tiempo de prueba son limitados: S/60 / 3 días).
 - [ ] Checklist de [01-politicas-google-ads-cumplimiento.md](/SOPs/01-politicas-google-ads-cumplimiento.md)
       revisado sin incumplimientos pendientes (Misrepresentation, Data collection and use,
       Destination Requirements, Abusing the ad network).
-- [ ] El cupo "10 empresas" es real y documentado internamente.
+- [ ] Si se menciona un cupo, es real y está documentado internamente. Si no existe, no se publica.
 
 ### Fundamentos técnicos (SOP 02)
 - [ ] Tipo de campaña, estrategia de puja y concordancia de keywords configurados según
@@ -25,7 +25,7 @@ datos (el presupuesto y tiempo de prueba son limitados: S/60 / 3 días).
 
 ### Landing (SOP 03)
 - [ ] Página publicada en la URL final que usarán los anuncios.
-- [ ] CTA principal con el texto exacto acordado.
+- [ ] CTA principal describe el diagnóstico de la operación y coincide con los anuncios.
 - [ ] Responsive verificado en mobile (375px), tablet (768px) y desktop.
 - [ ] Sin scroll horizontal en ningún breakpoint.
 - [ ] Aviso de privacidad/consentimiento visible antes del formulario.
@@ -34,19 +34,19 @@ datos (el presupuesto y tiempo de prueba son limitados: S/60 / 3 días).
 ### Formulario (SOP 04)
 - [ ] Los campos definidos están presentes y validan correctamente, incluido el consentimiento.
 - [ ] El teléfono se normaliza a formato E.164.
-- [ ] El envío exitoso redirige a la página de agradecimiento/upsell.
+- [ ] El envío exitoso muestra la pantalla de éxito y el CTA al bot de Telegram.
 - [ ] Los leads quedan guardados y son consultables por el equipo.
 - [ ] `gclid`/UTMs de la URL de entrada llegan correctamente al lead guardado.
 
-### Página de upsell (SOP 05)
+### Pantalla de éxito y CTA (SOP 05)
 - [ ] El CTA 2 describe el siguiente paso sin garantías ni escasez artificial.
-- [ ] Botón de WhatsApp abre el chat correcto con mensaje prellenado.
-- [ ] Enlace de Cal.com funciona y muestra franjas horarias correctas (zona horaria Perú).
+- [ ] El botón de Telegram abre el bot correcto.
 
 ### Tracking (SOP 06)
 - [ ] GTM/GA4 publicado en modo "Live" (no solo Preview).
-- [ ] Los 5 eventos (`view_landing`, `submit_form_early_access`, `view_thankyou_upsell`,
-      `click_whatsapp_vip`, `schedule_calcom`) se confirmaron en una prueba end-to-end manual.
+- [ ] Los eventos (`view_landing`, `submit_implementation_request`,
+      `view_implementation_success`, `click_telegram_implementation`) se confirmaron en una
+      prueba end-to-end manual.
 - [ ] Conversiones vinculadas/disponibles en la cuenta de Google Ads.
 - [ ] Convención de UTMs coincide entre lo que la landing espera y lo que llevarán los anuncios.
 
@@ -57,10 +57,12 @@ datos (el presupuesto y tiempo de prueba son limitados: S/60 / 3 días).
 - [ ] Negativas básicas aplicadas.
 - [ ] URLs finales de los anuncios verificadas manualmente (abren la landing con UTMs correctos).
 - [ ] Al menos 1 RSA activo por ad group, sin advertencias de aprobación pendiente.
+- [ ] Keyword Planner revisado y CPC compatible con el presupuesto de S/60.
 
 ### Operación durante la prueba
-- [ ] Responsable asignado para revisar leads entrantes y responder manualmente por WhatsApp
+- [ ] Responsable asignado para revisar alertas y responder manualmente por Telegram
       durante los 3 días (mientras no existe automatización de respuesta).
+- [ ] SLA de revisión definido y probado con un lead de prueba.
 - [ ] Revisión diaria de gasto y clics programada (no esperar al día 3 para la primera revisión).
 
 ## Entregable

@@ -9,55 +9,53 @@ export type Solution = {
   integrations: string[];
   metrics: string[];
   price: string;
-  referencePrice?: string;
 };
 
 export const solutions: Solution[] = [
   {
-    slug: "leads-inmobiliarios",
-    vertical: "Inmobiliarias",
-    eyebrow: "Para negocios donde cada lead vale una visita",
-    title: "El lead preguntó por el departamento. Nadie volvió a escribirle.",
+    slug: "formacion-onboarding-acceso",
+    vertical: "Academias y comunidades premium de formación",
+    eyebrow: "Onboarding y acceso",
+    title: "Inscripciones claras. Acceso correcto desde el primer día.",
     story:
-      "A las 10:14 llega una consulta desde un portal. A las 11:00 ya hay otra. Al final del día, el asesor recuerda la primera, pero no sabe quién la tomó ni cuál era el siguiente paso.",
+      "Una persona paga o se inscribe, pero el acceso al canal, los materiales y el siguiente paso todavía dependen de revisar mensajes y confirmar datos a mano.",
     problem:
-      "Urbania, Adondevivir, anuncios y WhatsApp trabajan separados. El cuello de botella no es conseguir consultas: es responderlas, asignarlas y mantenerlas vivas.",
+      "La comunidad crece, pero el onboarding sigue repartido entre Telegram, hojas, comprobantes y enlaces. Cada error de acceso consume soporte y deteriora la experiencia del alumno.",
     outcome:
-      "Una operación visible para que cada consulta tenga responsable, contexto y próximo paso antes de que se enfríe.",
-    integrations: ["Urbania / Adondevivir", "WhatsApp", "Google Sheets", "Google Ads y Meta Ads"],
-    metrics: ["Tiempo de primera respuesta", "Leads sin seguimiento", "Visitas agendadas"],
-    price: "Desde US$300",
-    referencePrice: "US$500"
+      "Una Mini App y un flujo de Telegram que registra la inscripción, valida el siguiente paso, entrega acceso según reglas aprobadas y deja trazabilidad para el equipo.",
+    integrations: ["Telegram Mini App", "Telegram Stars o checkout", "Google Sheets", "n8n"],
+    metrics: ["Tiempo hasta el acceso", "Inscritos con siguiente paso", "Horas de soporte de onboarding"],
+    price: "Implementaciones desde US$1,000"
   },
   {
-    slug: "operacion-ecommerce-multicanal",
-    vertical: "E-commerce",
-    eyebrow: "Para tiendas que venden en más de un canal",
-    title: "La venta entró. El stock no se enteró.",
+    slug: "formacion-soporte-conocimiento",
+    vertical: "Academias y comunidades premium de formación",
+    eyebrow: "Soporte y conocimiento",
+    title: "Respuestas consistentes. Más tiempo para enseñar.",
     story:
-      "MercadoLibre muestra un pedido, Shopify muestra otro y WhatsApp tiene el pago confirmado. El dueño abre tres pestañas y una hoja para descubrir qué se puede despachar.",
+      "La comunidad pregunta por clases, materiales, fechas y políticas. El equipo repite respuestas, busca enlaces y no siempre sabe cuándo debe intervenir una persona.",
     problem:
-      "La fuga aparece en los cambios manuales: pedidos perdidos, pagos pendientes, stock desactualizado y margen que se va en errores de operación.",
+      "La información vive en mensajes, documentos y hojas. Sin fuentes aprobadas, permisos y límites, responder más rápido puede aumentar el riesgo de entregar información incorrecta o desactualizada.",
     outcome:
-      "Un centro operativo familiar para que el equipo vea qué vender, cobrar, preparar y entregar sin cambiar de software cada cinco minutos.",
-    integrations: ["MercadoLibre", "Shopify / WooCommerce", "WhatsApp", "Google Sheets"],
-    metrics: ["Pedidos pendientes", "Pagos por verificar", "Incidencias de despacho"],
-    price: "Desde US$750"
+      "Un agente de primer nivel con conocimiento versionado, aviso de interacción con IA, escalamiento humano y registro de las preguntas que necesitan una mejor respuesta.",
+    integrations: ["Telegram Bot API", "Google Drive o Notion", "n8n", "Panel de operación"],
+    metrics: ["Horas de soporte repetitivo", "Preguntas escaladas", "Respuestas fuera de política"],
+    price: "Implementaciones desde US$1,000"
   },
   {
-    slug: "citas-clinicas",
-    vertical: "Clínicas y consultorios",
-    eyebrow: "Para negocios donde una cita perdida es ingreso perdido",
-    title: "La paciente dijo “sí”. La agenda nunca lo confirmó.",
+    slug: "formacion-cohortes-renovaciones",
+    vertical: "Academias y comunidades premium de formación",
+    eyebrow: "Cohortes y renovaciones",
+    title: "Más alumnos activos. Menos seguimiento perdido.",
     story:
-      "La consulta llegó por Instagram. Alguien respondió por WhatsApp. La agenda quedó en otro calendario y, cuando llega el día, nadie sabe si la cita estaba confirmada.",
+      "Publicas una sesión o una nueva etapa, pero los inscritos no reciben el mismo contexto, recordatorio o siguiente paso. La operación depende de revisar listas y enviar mensajes a mano.",
     problem:
-      "El cuello de botella está entre la captación y la asistencia: conversaciones sin siguiente paso, citas no confirmadas y pacientes que se enfrían.",
+      "La coordinación de cohortes, eventos y renovaciones ocupa horas; además, el equipo no tiene una vista confiable de quién asistió, quién abandonó y quién necesita atención.",
     outcome:
-      "Un flujo operativo para que cada consulta tenga estado, recordatorio y responsable, sin convertir la atención en un CRM pesado.",
-    integrations: ["WhatsApp", "Google Calendar", "Google Sheets", "Formularios y anuncios"],
-    metrics: ["Citas confirmadas", "No-shows", "Consultas sin seguimiento"],
-    price: "Desde US$600"
+      "Un flujo de inscripción, recordatorio, progreso y renovación en Telegram con roles, trazabilidad y una salida clara hacia una persona.",
+    integrations: ["Telegram Mini App", "Google Calendar", "Google Sheets o CRM", "Webhooks"],
+    metrics: ["Asistencia confirmada", "Alumnos activos", "Renovaciones con seguimiento"],
+    price: "Implementaciones desde US$1,000"
   }
 ];
 

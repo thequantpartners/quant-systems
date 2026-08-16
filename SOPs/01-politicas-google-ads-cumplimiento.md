@@ -36,12 +36,13 @@ afirmaciones poco realistas o engañosas, no mostrar datos de contacto/direcció
 - [ ] La landing no promete resultados de negocio garantizados ni cifras de ganancia/ROI que no
       se puedan sostener (evitar frases tipo "aumenta tus ventas 300%" sin evidencia).
 - [ ] Se muestra el contacto real `partners@thequantpartners.com` en la landing.
-- [ ] La oferta de implementación desde US$500 coincide con el anuncio y el alcance comercial
-      aprobado; no presentar n8n como el producto ni prometer resultados.
+- [ ] La oferta publicada coincide con el anuncio y el alcance comercial aprobado: implementación
+      de experiencias operativas para academias en Telegram desde US$1,000; no presentar n8n como el producto ni
+      prometer resultados.
 
 ### 2. Data collection and use (recolección y uso de datos)
 
-Aplica porque el formulario (SOP 04) recolecta nombre, empresa, cargo, email y teléfono —
+Aplica porque el formulario (SOP 04) recolecta nombre, empresa, email y teléfono —
 información personal que Google Ads exige manejar con cuidado.
 
 - [ ] El sitio corre sobre **HTTPS** (certificado SSL válido) antes de publicar el formulario.
@@ -85,14 +86,15 @@ información personal que Google Ads exige manejar con cuidado.
 
 ## Aplicación específica a QuantSetters
 
-- La landing debe filtrar servicios de ticket medio-alto/high-ticket que ya ejecuten campañas de
-  generación de clientes potenciales en Google Ads y/o Meta Ads. No prometer ROAS, ventas,
-  ingresos ni resultados específicos.
+- La landing debe dirigirse a comunidades de trading, forex y educación financiera que operen en
+  Telegram. El mensaje debe ser educativo y operativo: no ofrecer señales, recomendaciones
+  personalizadas, apuestas, rentabilidad, ventas, ingresos ni resultados específicos.
 - El formulario (SOP 04) debe exigir consentimiento explícito para evaluación comercial y contacto
-  por WhatsApp o correo, enlazando `/privacidad`. La landing debe estar en HTTPS desde el día 1.
-- El deep link de WhatsApp (SOP 05) no debe usarse como "final URL" del anuncio (los anuncios de
-  Search deben apuntar a la landing, no directo a `wa.me`), para evitar problemas de "Destination
-  mismatch"/"Destination not crawlable" con un enlace que no es una página web rastreable.
+  por correo, WhatsApp o llamada, enlazando `/privacidad`. La landing debe estar en HTTPS desde el
+  día 1.
+- El deep link de Telegram (SOP 05) no debe usarse como URL final del anuncio. Los anuncios Search
+  deben apuntar a la landing, no directamente a `t.me`, para evitar problemas de destino no
+  rastreable o desalineado.
 
 ## Entregable
 

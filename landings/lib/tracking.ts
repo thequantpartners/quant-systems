@@ -6,6 +6,8 @@ export type TrackingEvent =
   | "view_thankyou_upsell"
   | "click_whatsapp_vip"
   | "schedule_calcom"
+  | "click_telegram_implementation"
+  | "view_implementation_success"
   | "view_solution"
   | "submit_implementation_request"
   | "complete_diagnostic"
@@ -22,6 +24,13 @@ export function track(event: TrackingEvent, parameters: Attribution = {}) {
       detail: { event, ...parameters }
     })
   );
+
+  const trackingWindow = window as Window & {
+    dataLayer?: Array<Record<string, string>>;
+  };
+  const dataLayer = trackingWindow.dataLayer ?? (trackingWindow.dataLayer = []);
+
+  dataLayer.push({ event, ...parameters });
 
   const gtag = (
     window as Window & {

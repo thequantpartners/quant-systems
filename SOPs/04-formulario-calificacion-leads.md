@@ -1,76 +1,71 @@
-# SOP 04 — Formulario de calificación de leads
+# SOP 04 — Diagnóstico y captura de solicitudes
 
 ## Objetivo
 
-Capturar datos suficientes para calificar la intención del lead y dejar registro atribuible
-(`gclid`/UTMs) para medir la campaña, con consentimiento explícito para el contacto comercial.
+Capturar el flujo de formación, su frecuencia, consecuencia y métrica objetivo, y dejar un registro
+atribuible (`gclid`/UTMs) para medir la campaña, con consentimiento explícito para el contacto.
 
 ## Prerrequisitos
 
-- Landing publicada con el bloque de oferta y espacio para el formulario (SOP 03).
-- Definición de dónde se almacenará el lead (tabla simple o servicio ligero; no requiere el
-  backend completo de producto).
+- Landing publicada con el diagnóstico y el bloque de contacto (SOP 03).
+- Endpoint FastAPI de producción y tabla `implementation_requests` disponibles.
+- La ruta local de Next.js es solo un fallback de desarrollo y no debe recibir tráfico pagado.
 
-## Campos del formulario
+## Campos del diagnóstico y formulario
 
 | Campo | Tipo | Obligatorio | Validación |
 |-------|------|-------------|------------|
+| Situación a ordenar | select | Sí | onboarding, acceso, soporte, cohortes o renovaciones |
+| Herramientas actuales | texto largo | Sí | respuesta concreta |
+| Cuello de botella | texto largo | Sí | respuesta concreta |
+| Frecuencia | select | Sí | frecuencia del problema |
+| Consecuencia | texto largo | Sí | impacto operativo actual |
+| Métrica objetivo | texto largo | Sí | métrica antes/después |
+| Resultado deseado | texto largo | Sí | mejora operativa concreta |
+| Ingreso mensual de la oferta/comunidad | select | Sí | rango aproximado |
+| Presupuesto de implementación | select | Sí | desde US$1,000 |
 | Nombre | texto | Sí | mínimo 2 caracteres |
 | Empresa | texto | Sí | mínimo 2 caracteres |
-| Cargo | texto | Sí | mínimo 2 caracteres |
 | Email | email | Sí | formato email válido |
-| WhatsApp/Teléfono | tel | Sí | formato peruano (+51 9XXXXXXXX), normalizar a E.164 |
-| Leads mensuales | select | Sí | rango aproximado |
-| Canales de Ads | select | Sí | Google Ads, Meta Ads o ambos |
-| Inversión mensual en Ads | select | Sí | rango aproximado |
-| Valor promedio de una venta | select | Sí | rango aproximado |
-| Consentimiento | checkbox | Sí | contacto por WhatsApp/correo y enlace a `/privacidad` |
+| WhatsApp/Teléfono | tel | Sí | `+51 9XXXXXXXX`, guardar en E.164 |
+| Consentimiento de evaluación | checkbox | Sí | enlace a `/privacidad` |
+| Consentimiento de contacto | checkbox | Sí | correo, WhatsApp o llamada |
 
 ## Pasos
 
-1. **Implementar el formulario** en la landing (SOP 03), usando componentes existentes de
-   `src/components/ui` si el proyecto ya los tiene (shadcn-ui) y `Label` + `htmlFor` en cada
-   campo.
-2. **Validación en frontend**: usar `zod` si el repo ya lo tiene disponible; si no, validar con
-   reglas simples equivalentes (no agregar dependencia nueva sin justificarlo).
-3. **Validar consentimiento**: el navegador y el endpoint deben rechazar el envío si no está marcado.
-   Guardar el hecho del consentimiento junto al lead.
-4. **Normalizar el teléfono** a formato E.164 (+51...) antes de enviar/guardar.
-5. **Adjuntar atribución**: al enviar, incluir `gclid` y UTMs capturados en SOP 03 (paso 5) junto
-   con los datos del formulario.
-6. **Guardar el lead**: persistir en el almacenamiento definido (tabla `early_access_leads` simple
-   o equivalente), con timestamp, `gclid`/UTMs, y los campos del formulario.
-7. **Disparar evento de tracking** `submit_form_early_access` (ver SOP 06) inmediatamente después
-   de un guardado exitoso.
-8. **Redirigir** al usuario a la página de agradecimiento/upsell (SOP 05) tras el envío exitoso.
-9. **Manejo de errores**: mostrar mensaje de error claro si falla la validación o el guardado
-   (estado `error` visible, sin perder los datos ya escritos por el usuario).
-9. **Notificación interna** (opcional pero recomendado): enviar aviso por email o WhatsApp al
-   equipo cuando entra un nuevo lead, para poder darle seguimiento manual mientras no existe el
-   producto automatizado.
+1. **Implementar el diagnóstico** en dos pasos: contexto operativo y datos de contacto.
+2. **Validar en frontend** con las reglas existentes; no agregar dependencias nuevas.
+3. **Validar consentimiento** en navegador y backend; guardar ambos consentimientos.
+4. **Normalizar el teléfono** a formato E.164 (`+519XXXXXXXX`) antes de enviar/guardar.
+5. **Adjuntar atribución** (`gclid` y UTMs) capturada al entrar a la landing.
+6. **Guardar la solicitud** en `implementation_requests`, con timestamp, consentimientos,
+   atribución y resumen del impacto. La persistencia ocurre antes de la alerta de Telegram.
+7. **Disparar** `submit_implementation_request` inmediatamente después de un guardado exitoso.
+8. **Mostrar el éxito** en el mismo flujo y ofrecer el deep link del bot de Telegram (SOP 05).
+9. **Notificar internamente**: el backend intenta enviar una alerta al chat privado de Telegram
+   después del commit; un fallo de Telegram no debe borrar la solicitud guardada.
+10. **Mostrar errores claros** sin perder los datos escritos por el usuario.
 
 ## Entregable
 
-- Formulario funcional integrado en la landing, con validación, guardado y redirect.
-- Registro de leads accesible para revisión manual (tabla o export simple).
+- Diagnóstico y formulario funcionales, con validación y estados accesibles.
+- Solicitudes persistidas y consultables por el equipo.
+- Atribución y consentimientos almacenados junto a cada solicitud.
 
 ## Checklist de validación
 
-- [ ] Cada input tiene `Label` asociado (accesible por lector de pantalla).
-- [ ] Estados `hover`, `focus-visible`, `disabled` (durante envío) y `error` implementados.
+- [ ] Cada control tiene un `label` asociado y estados `focus-visible`, `disabled` y `error`.
 - [ ] El teléfono se guarda normalizado en formato E.164.
-- [ ] El `gclid`/UTMs de la URL de entrada llega correctamente al registro guardado (probar con
-      una URL de prueba con `gclid` ficticio).
-- [ ] Al enviar, redirige a la página de SOP 05 sin recargar toda la app de forma abrupta.
-- [ ] El evento `submit_form_early_access` se ve disparado en el panel de depuración de GTM/GA4.
-- [ ] El registro guarda que el consentimiento fue aceptado y los canales autorizados.
+- [ ] `gclid`/UTMs llegan correctamente al registro guardado.
+- [ ] El envío muestra éxito y CTA de Telegram sin perder la atribución.
+- [ ] `submit_implementation_request` aparece en GTM/GA4.
+- [ ] El registro conserva ambos consentimientos.
+- [ ] La landing usa el FastAPI de Railway y no el sink local.
 
 ## Notas/Riesgos
 
-- No se necesita backend de producción robusto todavía: priorizar velocidad de implementación
-  sobre arquitectura (esto es validación, no el sistema final).
-- Evitar pedir más campos de los definidos: cada campo extra reduce la tasa de conversión del
-  formulario.
-- Recordar el requisito de Data collection and use de
-  [01-politicas-google-ads-cumplimiento.md](/SOPs/01-politicas-google-ads-cumplimiento.md): HTTPS
-  y aviso de privacidad antes de recolectar estos datos.
+- No construir aún el backend completo del producto; esta tabla cubre la validación.
+- Verificar `NEXT_PUBLIC_API_BASE_URL` antes de comprar tráfico. Si falta, el fallback local no es
+  persistencia de producción.
+- Recordar el requisito de HTTPS y aviso de privacidad de
+  [01-politicas-google-ads-cumplimiento.md](/SOPs/01-politicas-google-ads-cumplimiento.md).

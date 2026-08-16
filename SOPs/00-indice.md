@@ -2,19 +2,18 @@
 
 ## Objetivo
 
-Servir de mapa y orden de ejecución para validar demanda del sistema **Quant Setters** con una
-landing page + campaña de Google Ads Search, **antes** de construir el producto descrito en
-[plan.md](/plan.md) (AttribWA + SpeedLead WA). Meta: gastar poco (S/60 en 3 días), medir bien, y
-decidir con datos si se construye o se ajusta la oferta.
+Servir de mapa y orden de ejecución para validar la oferta de **Quant Systems** con una landing
+page + campaña de Google Ads Search, antes de construir automatizaciones verticales. La oferta
+vigente es una implementación de agentes operativos para comunidades de trading, forex y educación
+financiera que usan Telegram. Meta: gastar poco (S/60 en 3 días), medir bien y decidir con datos.
 
 ## Estrategia (resumen)
 
 1. Un visitante llega a la **landing** vía anuncio de Google Ads Search.
 2. Ve el problema/solución y un CTA para revisar su sistema de ventas.
-3. Llena un **formulario de calificación** (lead tibio) → se guarda con `gclid`/UTMs.
-4. Es redirigido a una **página de agradecimiento** con botón de WhatsApp + agenda Cal.com
-   (lead caliente).
-5. Se mide todo el embudo (vistas → form → upsell → WhatsApp/agenda) para decidir go/no-go.
+3. Completa un **diagnóstico de calificación** y deja sus datos → se guarda con `gclid`/UTMs.
+4. Tras el guardado, ve el resumen y un botón al bot privado de Telegram (lead caliente).
+5. Se mide todo el embudo (landing → diagnóstico → solicitud → éxito → Telegram) para decidir go/no-go.
 
 ## Orden de ejecución de los SOPs
 
@@ -29,6 +28,7 @@ decidir con datos si se construye o se ajusta la oferta.
 | 7 | [07-campana-google-ads-search.md](/SOPs/07-campana-google-ads-search.md) | Armar y lanzar la campaña Search (S/60 / 3 días) |
 | 8 | [08-medicion-reporte-decision.md](/SOPs/08-medicion-reporte-decision.md) | Leer resultados y decidir go/no-go |
 | 9 | [09-checklist-lanzamiento.md](/SOPs/09-checklist-lanzamiento.md) | Checklist final antes de encender la campaña |
+| 10 | [10-conexion-cli-google-ads.md](/SOPs/10-conexion-cli-google-ads.md) | Configurar y operar la conexión CLI/API reutilizable de Google Ads |
 
 Ejecutar en este orden: **1 → 2 (leer antes de escribir copy/crear campaña) → 3 → 4 → 5 → 6 → 7 → 9
 (checklist) → lanzar → 8 (después de 3 días)**.
@@ -48,8 +48,8 @@ Ejecutar en este orden: **1 → 2 (leer antes de escribir copy/crear campaña) �
 ## Criterio de decisión rápido
 
 Si al final de los 3 días (ver [08-medicion-reporte-decision.md](/SOPs/08-medicion-reporte-decision.md))
-hay señal suficiente de leads calificados y agendas/contactos por WhatsApp, se retoma la construcción
-del producto según [plan.md](/plan.md).
+hay señal suficiente de solicitudes calificadas y conversaciones iniciadas en Telegram, se retoma la
+construcción según [plan.md](/plan.md).
 Si no hay señal, se ajusta oferta/mensaje/ICP y se corre una segunda ronda antes de construir.
 
 ## Notas

@@ -15,3 +15,4 @@ build/
 # Local PCA state
 .pca/pca.db
 .pca/last-task-context.md
+.vercel

@@ -37,9 +37,6 @@ export default function SolutionDetailPage({ params }: { params: { slug: string 
             <Link className="primary-cta" href={`/implementar?solution=${solution.slug}`}>Quiero revisar esto <span aria-hidden="true">↗</span></Link>
             <p className="microcopy price-note">
               <strong>{solution.price}</strong>
-              {solution.referencePrice ? (
-                <> <del>{solution.referencePrice}</del> precio de referencia.</>
-              ) : null}
               {" "}El alcance final se confirma antes de construir.
             </p>
           </div>
@@ -61,7 +58,7 @@ export default function SolutionDetailPage({ params }: { params: { slug: string 
             <div className="metric-line">{solution.metrics.map((metric) => <span key={metric}>{metric}</span>)}</div>
           </section>
         </div>
-        <p className="site-legal solution-disclaimer">Las métricas son indicadores operativos, no una promesa de resultados. La implementación depende del acceso, disponibilidad y condiciones de las herramientas del cliente. Quant Systems no está afiliado a las plataformas mencionadas.</p>
+        <p className="site-legal solution-disclaimer">Las métricas son indicadores operativos, no una promesa de resultados. La implementación depende del acceso, disponibilidad y condiciones de las herramientas del cliente. Quant Systems es independiente y no está afiliado a Telegram ni a las demás plataformas que el cliente utilice.</p>
       </article>
     </main>
   );

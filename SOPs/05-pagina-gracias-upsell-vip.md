@@ -1,51 +1,40 @@
-# SOP 05 — Página de agradecimiento y siguiente paso
+# SOP 05 — Pantalla de éxito y siguiente paso
 
 ## Objetivo
 
-Convertir al lead tibio (ya dejó sus datos) en lead caliente, con una acción directa de contacto
-(WhatsApp) o agenda (Cal.com), sin introducir urgencia artificial.
+Convertir una solicitud guardada en una conversación de mayor intención mediante un CTA al bot
+privado de Telegram, sin introducir urgencia artificial.
 
 ## Prerrequisitos
 
-- Formulario del SOP 04 funcionando y redirigiendo correctamente tras un envío exitoso.
-- Enlace de agenda Cal.com configurado (evento tipo "Llamada Quant Setters - Acceso anticipado",
-  duración sugerida 15-20 min).
-- Número de WhatsApp de negocio definido para el deep link.
+- Diagnóstico y formulario del SOP 04 funcionando.
+- Username público del bot definido: `https://t.me/quantsystemss_bot`.
 
-## Pasos
+## Flujo vigente
 
-1. **Crear la ruta** `/gracias` (o `/acceso-anticipado/gracias`) en el mismo proyecto Next.js.
-2. **Mensaje principal**: confirmación de que sus
-   datos fueron recibidos.
-3. **Siguiente paso (CTA 2)**: invitar a revisar el tramo entre el anuncio y la venta, sin prometer
-   resultados ni usar escasez no documentada.
-4. **Botón de WhatsApp**: deep link `https://wa.me/51XXXXXXXXX?text=...` con mensaje prellenado
-   que incluya referencia a "acceso anticipado" para reconocer el origen en la conversación
-   manual (mientras no existe atribución automática vía backend).
-5. **Enlace/botón de agenda Cal.com**: como alternativa al WhatsApp directo, embebido o como botón
-   que abre el enlace de Cal.com en nueva pestaña.
-6. **Disparar evento** `view_thankyou_upsell` al cargar la página, y `click_whatsapp_vip` /
-   `schedule_calcom` al hacer clic en cada botón respectivo (ver SOP 06).
-7. **Diseño**: mantener consistencia visual con la landing (SOP 03), jerarquía clara, botones con
-   estados `hover`/`focus-visible`/`active`, responsive mobile-first.
+1. Tras persistir correctamente la solicitud, mostrar el estado de éxito en `/implementar`.
+2. Confirmar que los datos fueron recibidos y que el equipo revisará el contexto.
+3. Mostrar el CTA **“Abrir el bot en Telegram”** en nueva pestaña.
+4. Disparar `view_implementation_success` al mostrar el éxito.
+5. Disparar `click_telegram_implementation` al hacer clic en el bot.
+
+La ruta `/gracias` puede mantenerse para QA o compatibilidad, pero no es el camino principal de
+conversión y no debe introducir CTAs de WhatsApp, Cal.com o una oferta distinta.
 
 ## Entregable
 
-- Página de agradecimiento/upsell publicada y alcanzable solo tras completar el formulario (o
-  accesible directamente para pruebas QA).
-- Botones de WhatsApp y Cal.com funcionando y con tracking de clic.
+- Estado de éxito publicado y alcanzable después de guardar la solicitud.
+- Botón de Telegram funcionando y con tracking de clic.
 
 ## Checklist de validación
 
-- [ ] El CTA 2 coincide con la oferta de implementación y no contiene garantías.
-- [ ] El botón de WhatsApp abre la app/web de WhatsApp con el número y mensaje correctos.
-- [ ] El enlace de Cal.com abre el calendario correcto (verificar zona horaria Perú).
-- [ ] Los eventos `view_thankyou_upsell`, `click_whatsapp_vip` y `schedule_calcom` se disparan
-      correctamente (verificar en GTM preview/GA4 DebugView).
-- [ ] La página es responsive y no genera scroll horizontal en mobile.
+- [ ] El mensaje confirma recepción sin garantizar ventas, ingresos, ROI ni resultados específicos.
+- [ ] El CTA abre `https://t.me/quantsystemss_bot`.
+- [ ] `view_implementation_success` y `click_telegram_implementation` aparecen en GTM/GA4.
+- [ ] La atribución (`gclid`/UTMs) se conserva en ambos eventos.
+- [ ] La pantalla es responsive y no genera scroll horizontal.
 
 ## Notas/Riesgos
 
 - No añadir cupos, contadores ni mensajes de urgencia sin una restricción real documentada.
-- Esta página es el punto de mayor señal de intención: priorizar que cargue rápido y sin
-  fricción, ya que el usuario ya demostró interés en el paso anterior.
+- El CTA de Telegram es una señal de intención, no una conversión de venta.

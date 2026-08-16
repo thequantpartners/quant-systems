@@ -2,119 +2,115 @@
 
 ## Objetivo
 
-Definir y lanzar una campaña de Google Ads Search acotada en presupuesto y tiempo, orientada a
-generar tráfico calificado hacia la landing (SOP 03) y medir intención real del ICP definido.
+Definir y lanzar una prueba acotada de Google Ads Search para medir demanda de implementaciones
+operativas en Telegram para comunidades de trading, forex y educación financiera.
 
 ## Prerrequisitos
 
-- **Lectura obligatoria previa**: [01-politicas-google-ads-cumplimiento.md](/SOPs/01-politicas-google-ads-cumplimiento.md)
-  (para no violar políticas de Google Ads) y
-  [02-fundamentos-tecnicos-google-ads.md](/SOPs/02-fundamentos-tecnicos-google-ads.md) (para
-  configurar tipo de campaña, puja, concordancia de keywords y estructura con criterio de
-  experto, no adivinando).
-- Cuenta de Google Ads activa con facturación configurada.
-- Landing (SOP 03), formulario (SOP 04) y página de upsell (SOP 05) publicadas y con tracking
-  verificado (SOP 06).
-- Vínculo GA4↔Google Ads configurado o en proceso (SOP 06).
+- SOPs 01 a 06 revisados y sin bloqueadores.
+- Cuenta de Google Ads activa, facturación aprobada y conversiones disponibles.
+- Landing publicada en `https://quantsystems.thequantpartners.com/`.
+- Responsable asignado para revisar leads, Telegram y gasto diariamente.
 
 ## ICP y targeting
 
-- **Ubicación**: Perú (evaluar si concentrar en Lima Metropolitana para mayor densidad de clics
-  con presupuesto bajo, o dejar nacional si el volumen de búsquedas lo justifica).
-- **Idioma**: Español.
-- **Verticales objetivo** (ICP): inmobiliarias, clínicas/consultorios, colegios/institutos,
-  servicios profesionales (estudios legales, contables, agencias) — empresas que ya invierten en
-  Google Ads y reciben leads por WhatsApp.
+- **Ubicación**: Perú; concentrar en Lima solo si Keyword Planner muestra mejor densidad.
+- **Idioma**: español.
+- **Audiencia**: operadores o administradores de comunidades de trading, forex y educación
+  financiera que usan Telegram y sufren seguimiento manual, soporte repetitivo o problemas de
+  coordinación.
+- No anunciar señales, recomendaciones de inversión, rentabilidad, apuestas o ganancias.
 
 ## Estructura de campaña propuesta
 
-> Decisiones de tipo de campaña, puja y concordancia de keywords tomadas según
-> [02-fundamentos-tecnicos-google-ads.md](/SOPs/02-fundamentos-tecnicos-google-ads.md).
-
-```
-Campaña: QuantSetters - Search - Validación
-  Tipo: Solo Red de Búsqueda (Search), sin Red de Display
-  Presupuesto: S/20/día x 3 días = S/60 total
-  Estrategia de puja: Maximizar clics (fase de aprendizaje, sin datos de conversión aún)
-                      o CPC manual con tope bajo si se prefiere más control del gasto
-  Ubicación: Perú (o Lima Metropolitana si se busca mayor concentración)
+```text
+Campaña: QuantSystems - Search - Validación Telegram
+  Tipo: Solo Red de Búsqueda
+  Presupuesto: S/20/día x 3 días = S/60 máximo
+  Puja: Maximize Clicks o Manual CPC con tope bajo
+  Ubicación: Perú (o Lima Metropolitana, según Keyword Planner)
   Idioma: Español
-  Extensiones: Sitelinks (ej. "Cómo funciona", "Acceso anticipado"), Llamada (si aplica), Frase destacada
 
-  Ad Group 1: Inmobiliarias
-    Keywords (frase/exacta, intención alta):
-      - "leads whatsapp inmobiliaria"
-      - "responder leads google ads whatsapp"
-      - "automatizar whatsapp inmobiliaria"
-    Negativas sugeridas: gratis, curso, empleo, trabajo
+  Ad Group 1: Automatización Telegram
+    "automatizar telegram comunidad"
+    "agente telegram para comunidad"
+    "organizar mensajes telegram"
 
-  Ad Group 2: Clínicas / consultorios
-    Keywords:
-      - "leads whatsapp clinica"
-      - "citas whatsapp google ads"
-      - "automatizar whatsapp consultorio"
-    Negativas sugeridas: gratis, curso, empleo, trabajo
+  Ad Group 2: Soporte y seguimiento
+    "automatizar soporte telegram"
+    "seguimiento de leads telegram"
+    "responder mensajes telegram negocio"
 
-  Ad Group 3: Servicios profesionales / colegios
-    Keywords:
-      - "gestionar leads whatsapp"
-      - "no perder leads google ads"
-      - "responder rapido whatsapp leads"
-    Negativas sugeridas: gratis, curso, empleo, trabajo
+  Ad Group 3: Trading y educación
+    "gestionar comunidad trading telegram"
+    "automatizar comunidad forex"
+    "gestionar alumnos telegram"
 ```
 
-> Nota: las keywords propuestas son punto de partida; deben validarse/ajustarse con Google
-> Keyword Planner antes de lanzar, priorizando volumen mínimo viable y CPC compatible con el
-> presupuesto de S/60/3 días. Ningún ad group debe compartir keywords con otro (ver estructura de
-> cuenta en SOP 02).
+Validar cada término en Keyword Planner y eliminar búsquedas sin intención comercial. No repartir
+el presupuesto entre tres grupos si el CPC estimado impide obtener una muestra útil; en ese caso,
+concentrar la prueba en el grupo con mayor intención.
 
-## Anuncios (RSA — Responsive Search Ads)
+## Anuncios RSA
 
-Por cada ad group, crear 1 RSA (idealmente 2, ver SOP 02) con:
-- 5-8 títulos (incluir variantes con "WhatsApp", "Google Ads", "leads", "no pierdas clientes"),
-  respetando el límite de 30 caracteres por título.
-- 2-3 descripciones (mencionar la promesa central y el CTA de acceso anticipado), máximo 90
-  caracteres cada una.
-- URL final: landing de SOP 03, con UTMs según convención definida en SOP 06:
-  `?utm_source=google&utm_medium=cpc&utm_campaign=quantsetters-search-<vertical>&utm_content=<nombre_anuncio>&utm_term={keyword}`
-- Revisar el checklist editorial de
-  [01-politicas-google-ads-cumplimiento.md](/SOPs/01-politicas-google-ads-cumplimiento.md) antes
-  de enviar los anuncios a revisión.
+Crear al menos un RSA por grupo, con:
+
+- 5-8 títulos de máximo 30 caracteres.
+- 2-3 descripciones de máximo 90 caracteres.
+- Mensaje centrado en reducir trabajo manual, ordenar conversaciones y medir una operación.
+- Sin garantías, superlativos no demostrados, señales financieras ni marcas de terceros.
+- URL final a la landing, nunca directamente a Telegram.
+
+Convención de URL:
+
+```text
+https://quantsystems.thequantpartners.com/
+  ?utm_source=google
+  &utm_medium=cpc
+  &utm_campaign=quantsystems-search-<grupo>
+  &utm_content=<nombre_anuncio>
+  &utm_term={keyword}
+```
+
+## Negativas iniciales
+
+Aplicar a nivel de campaña y revisar diariamente:
+
+```text
+gratis, curso, empleo, trabajo, pdf, que es, señales, señal, resultados garantizados,
+apuestas, casino, betting
+```
 
 ## Pasos
 
-1. **Validar keywords** en Keyword Planner: volumen de búsqueda y CPC estimado por término,
-   ajustando la lista si el CPC promedio no permite al menos ~15-20 clics con S/60.
-2. **Crear la campaña** en la interfaz de Google Ads con la estructura anterior (3 ad groups).
-3. **Configurar conversiones** apuntando a las importadas de GA4 (SOP 06) antes de lanzar.
-4. **Configurar negativas a nivel de campaña** (términos genéricos no relacionados: "gratis",
-   "curso", "empleo", "trabajo", "pdf", "que es").
-5. **Revisar checklist de lanzamiento** (SOP 09) antes de activar la campaña.
-6. **Lanzar** con presupuesto diario S/20 durante 3 días (pausar automáticamente al día 3 o
-   revisar manualmente para no exceder el gasto).
-7. **Monitorear diariamente**: revisar gasto, clics, CTR y search terms cada día de la prueba
-   (no esperar al final de los 3 días para la primera revisión).
+1. Validar volumen y CPC en Keyword Planner.
+2. Crear campaña, grupos, keywords, negativas, sitelinks y callouts.
+3. Configurar `submit_implementation_request` como conversión principal y
+   `click_telegram_implementation` como señal secundaria.
+4. Probar manualmente cada URL con UTMs y verificar el formulario.
+5. Completar el checklist del SOP 09.
+6. Activar S/20 diarios y pausar al alcanzar S/60 o al terminar el tercer día.
+7. Revisar diariamente gasto, clics, search terms, solicitudes y conversaciones de Telegram.
 
 ## Entregable
 
-- Campaña activa en Google Ads con la estructura, keywords, negativas y anuncios definidos.
-- UTMs coherentes con lo que la landing espera capturar (SOP 03/06).
-- Reporte diario mínimo de gasto y clics durante los 3 días.
+- Campaña activa con estructura, keywords, negativas, RSA y extensiones verificadas.
+- UTMs coherentes con SOP 03 y SOP 06.
+- Registro diario de gasto y métricas del embudo.
 
 ## Checklist de validación
 
-- [ ] Presupuesto diario configurado en S/20 (tope S/60 total en 3 días).
-- [ ] Ubicación geográfica restringida a Perú (o Lima, según decisión final).
-- [ ] Conversiones de GA4 visibles como opción al configurar el seguimiento de conversiones.
-- [ ] Negativas básicas aplicadas antes de lanzar.
-- [ ] URLs finales de los anuncios llevan a la landing con UTMs correctos (probar cada URL).
-- [ ] Extensiones de anuncio (sitelinks al menos) configuradas.
-- [ ] Tipo de campaña, estrategia de puja y concordancia de keywords coinciden con lo definido en
-      SOP 02.
+- [ ] Keyword Planner revisado y CPC compatible con S/60.
+- [ ] Facturación activa y presupuesto máximo configurado.
+- [ ] Ubicación restringida a Perú o Lima según decisión documentada.
+- [ ] Conversiones visibles en Google Ads.
+- [ ] Negativas aplicadas.
+- [ ] URLs finales probadas con UTMs.
+- [ ] Al menos un RSA por grupo sin advertencias críticas.
+- [ ] Responsable operativo confirmado.
 
 ## Notas/Riesgos
 
-- Con S/60/3 días el volumen de datos será bajo: priorizar señal cualitativa (search terms,
-  leads reales) sobre significancia estadística.
-- Si el CPC del ICP resulta muy alto para el presupuesto, considerar acotar a una sola vertical
-  (la de mayor intención/menor CPC) en vez de repartir entre 3 ad groups.
+Con S/60 y tres días la muestra será pequeña. Priorizar la calidad de las búsquedas y de los leads
+sobre la significancia estadística. Si el CPC es demasiado alto, reducir grupos antes de aumentar
+presupuesto.

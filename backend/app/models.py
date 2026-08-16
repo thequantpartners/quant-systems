@@ -24,9 +24,13 @@ class ImplementationRequest(Base):
     tools: Mapped[str] = mapped_column(Text, nullable=False)
     bottleneck: Mapped[str] = mapped_column(Text, nullable=False)
     frequency: Mapped[str] = mapped_column(String(80), nullable=False)
+    consent_accepted: Mapped[bool] = mapped_column(nullable=False, default=False)
     contact_consent: Mapped[bool] = mapped_column(nullable=False, default=False)
     attribution_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
     impact_summary_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    notification_sent: Mapped[bool | None] = mapped_column(nullable=True, default=None)
+    telegram_start_token: Mapped[str | None] = mapped_column(String(64), unique=True, nullable=True)
+    telegram_start_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     status: Mapped[str] = mapped_column(String(40), nullable=False, default="received")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

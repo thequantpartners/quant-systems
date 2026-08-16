@@ -35,9 +35,9 @@ anuncios, estructura de cuenta, conversiones/atribución), en vez de adivinar co
 | **App** | Promoción de instalación/acciones en apps | Solo si el objetivo es instalar una app; no aplica a esta validación. |
 
 **Decisión para esta validación**: **Search**, porque el objetivo es captar intención activa de
-búsqueda ("leads whatsapp inmobiliaria", etc.) del ICP definido, con control total de keywords y
-sin necesidad de historial de conversiones ni assets de video/imagen que las campañas
-automatizadas (Performance Max/Demand Gen) requieren para funcionar bien.
+búsqueda sobre agentes operativos, automatización y seguimiento en Telegram para comunidades de
+trading, forex y educación financiera, con control total de keywords y sin necesitar historial de
+conversiones ni assets de video/imagen.
 
 ## 2. Estrategias de puja (bidding)
 
@@ -101,9 +101,9 @@ apuntando a 2 si el tiempo lo permite, revisando Ad Strength antes de lanzar.
 ## 6. Extensiones / assets
 
 - **Sitelinks**: enlaces adicionales (ej. "Cómo funciona", "Acceso anticipado").
-- **Callouts**: frases destacadas cortas (ej. "Respuesta rápida por WhatsApp").
-- **Structured snippets**: listas categorizadas (ej. Servicios: Atribución, WhatsApp, Reportes).
-- **Call**: extensión de llamada, si se define un número de contacto telefónico además de WhatsApp.
+- **Callouts**: frases destacadas cortas (ej. "Menos seguimiento manual").
+- **Structured snippets**: listas categorizadas (ej. Servicios: Soporte, Seguimiento, Coordinación).
+- **Call**: extensión de llamada, solo si se define un número de contacto atendido durante la prueba.
 
 **Decisión para esta validación**: al menos sitelinks y callouts, ya que aportan Quality Score /
 Ad Strength con bajo esfuerzo de implementación.

@@ -16,13 +16,14 @@ class ImplementationRequestCreate(BaseModel):
     tools: str = Field(min_length=1, max_length=3000)
     bottleneck: str = Field(min_length=1, max_length=3000)
     frequency: str = Field(min_length=1, max_length=80)
+    impact_metric: str = Field(min_length=1, max_length=3000)
     consent_accepted: bool
     contact_consent: bool
     attribution: dict[str, str] = Field(default_factory=dict)
     impact_summary: dict[str, Any] = Field(default_factory=dict)
     idempotency_key: str | None = Field(default=None, max_length=255)
 
-    @field_validator("name", "company", "tools", "bottleneck", "frequency")
+    @field_validator("name", "company", "tools", "bottleneck", "frequency", "impact_metric")
     @classmethod
     def validate_meaningful_text(cls, value: str) -> str:
         normalized = " ".join(value.split())
@@ -66,7 +67,7 @@ class ImplementationRequestCreate(BaseModel):
     @field_validator("impact_summary")
     @classmethod
     def validate_impact_summary(cls, value: dict[str, Any]) -> dict[str, Any]:
-        for field_name in ("consequence", "desired_outcome"):
+        for field_name in ("consequence", "metric", "desired_outcome"):
             field_value = value.get(field_name)
             if not isinstance(field_value, str):
                 raise ValueError("Completa el contexto del problema y la mejora deseada.")
@@ -83,3 +84,14 @@ class ImplementationRequestResponse(BaseModel):
     status: str
     created: bool
     notification_sent: bool | None = None
+    telegram_url: str | None = None
+
+
+class TelegramStartResponse(BaseModel):
+    request_id: UUID
+    name: str
+    company: str
+    solution: str
+    bottleneck: str
+    tools: str
+    impact_summary: dict[str, Any]

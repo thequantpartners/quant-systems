@@ -24,22 +24,21 @@ invertir en desarrollo.
 | Etapa | Evento | Qué responde |
 |-------|--------|---------------|
 | Entrada | `view_landing` | ¿Cuánta gente llegó desde el anuncio? |
-| Lead tibio | `submit_form_early_access` | ¿Cuántos dejaron datos? (tasa de conversión landing → form) |
-| Vista upsell | `view_thankyou_upsell` | Confirma que el form funcionó correctamente |
-| Lead caliente WhatsApp | `click_whatsapp_vip` | ¿Cuántos escribieron por WhatsApp? |
-| Lead caliente agenda | `schedule_calcom` | ¿Cuántos agendaron llamada? |
+| Solicitud calificada | `submit_implementation_request` | ¿Cuántos completaron el diagnóstico? |
+| Vista éxito | `view_implementation_success` | Confirma que el formulario funcionó correctamente |
+| Lead caliente Telegram | `click_telegram_implementation` | ¿Cuántos abrieron el bot? |
 
 ### Métricas derivadas clave
-- **Costo por lead calificado** = gasto total / cantidad de `submit_form_early_access`.
-- **Costo por lead caliente** = gasto total / (`click_whatsapp_vip` + `schedule_calcom`).
-- **Tasa de calor** = (leads calientes / leads tibios) — indica qué tan urgente resulta la oferta.
+- **Costo por lead calificado** = gasto total / cantidad de `submit_implementation_request`.
+- **Costo por lead caliente** = gasto total / `click_telegram_implementation`.
+- **Tasa de calor** = (clics Telegram / solicitudes calificadas).
 - **Entradas y salidas**: usar GA4 (tiempo en página, tasa de rebote de la landing) para detectar
   si el problema es de tráfico (mal targeting) o de oferta/copy (llegan pero no convierten).
 
 ## Pasos
 
 1. **Exportar datos de Google Ads**: campaña, ad groups, keywords, search terms (últimos 3 días).
-2. **Exportar datos de GA4**: conteo de cada uno de los 5 eventos, por día.
+2. **Exportar datos de GA4**: conteo de cada uno de los 4 eventos, por día.
 3. **Armar tabla de reporte corto** (ver plantilla abajo).
 4. **Calcular métricas derivadas** (costo por lead calificado, costo por lead caliente, tasa de
    calor).
@@ -56,10 +55,9 @@ Impresiones: ___   Clics: ___   CTR: ___%   CPC prom.: S/ ___
 
 Embudo:
   view_landing:                ___
-  submit_form_early_access:    ___   (tasa vs. view_landing: ___%)
-  view_thankyou_upsell:        ___
-  click_whatsapp_vip:          ___
-  schedule_calcom:             ___
+  submit_implementation_request: ___   (tasa vs. view_landing: ___%)
+  view_implementation_success: ___
+  click_telegram_implementation: ___
 
 Costo por lead calificado:  S/ ___
 Costo por lead caliente:    S/ ___
@@ -74,9 +72,9 @@ Conclusión: GO / AJUSTAR / NO-GO
 
 ## Criterio de decisión (go/no-go)
 
-- **GO (construir el producto)**: hubo al menos algunos leads calificados (`submit_form_early_access`)
-  con costo razonable y **al menos 1-2 leads calientes reales** (WhatsApp o agenda) que confirman
-  intención de compra, no solo curiosidad.
+- **GO (construir la siguiente capacidad)**: hubo solicitudes calificadas (`submit_implementation_request`)
+  con costo razonable y **al menos 1-2 conversaciones reales en Telegram** que confirman intención
+  de compra o un problema operativo repetible, no solo curiosidad.
 - **AJUSTAR (segunda ronda antes de construir)**: hay tráfico y clics, pero pocos o ningún lead
   calificado — revisar copy/oferta/formulario antes de gastar más presupuesto, o el CTR es muy
   bajo — revisar anuncios/keywords.
@@ -91,7 +89,7 @@ Conclusión: GO / AJUSTAR / NO-GO
 
 ## Checklist de validación
 
-- [ ] Los 5 eventos del embudo tienen datos consistentes (no hay huecos por fallas de tracking).
+- [ ] Los 4 eventos del embudo tienen datos consistentes (no hay huecos por fallas de tracking).
 - [ ] El gasto reportado por Google Ads coincide aproximadamente con el presupuesto configurado.
 - [ ] La conclusión (GO/AJUSTAR/NO-GO) está documentada y comunicada al equipo antes de tomar la
       siguiente acción (retomar [plan.md](/plan.md) o ajustar oferta).

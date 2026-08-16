@@ -2,14 +2,14 @@
 
 ## Objetivo
 
-Construir la landing que reciba tráfico de campañas de clientes potenciales y convierta visitantes
-calificados en solicitudes de conversación sobre un sistema de ventas instalado desde US$500.
+Construir la landing que convierta academias y comunidades premium de formación que ya operan en
+Telegram en solicitudes calificadas para evaluar una Mini App y un sistema operativo desde US$1,000.
 
 ## Prerrequisitos
 
-- Definición de ICP confirmada: empresas de servicios medio-alto/high-ticket que ya ejecutan
-  campañas de generación de clientes potenciales en Google Ads y/o Meta Ads, reciben leads por
-  WhatsApp/CRM y tienen equipo comercial para dar seguimiento.
+- Definición de ICP confirmada: academias y comunidades premium de formación que operan en Telegram,
+  tienen una oferta pagada y sufren un problema repetitivo de onboarding, acceso, soporte, cohortes
+  o renovaciones.
 - Copy base del problema/promesa de Quant Setters (mensaje único, sin detalle técnico completo).
 - Acceso al repo `QuantSetters` (stack Next.js del dashboard existente) para crear la página.
 - [01-politicas-google-ads-cumplimiento.md](/SOPs/01-politicas-google-ads-cumplimiento.md) leído
@@ -21,17 +21,29 @@ calificados en solicitudes de conversación sobre un sistema de ventas instalado
 1. **Definir ruta**: crear la página en `/` (o `/acceso-anticipado`) dentro del proyecto Next.js,
    como página estática/simple, sin dependencias nuevas del backend de producto.
 2. **Estructurar el contenido** (mobile-first, una sola columna en `base`, ajustando en `md+`):
-   - **Hero**: título con el problema, subtítulo en segunda persona, precio de implementación
-     visible y CTA primario claro.
-   - **Cómo funciona** (breve, 3-4 pasos, sin revelar arquitectura técnica): de dónde vienen los
-     leads (Google Ads), qué hace el sistema (atribuye y responde/organiza por WhatsApp), qué gana
-     el negocio (no perder leads, responder rápido, medir de dónde vienen las ventas).
-   - **Para quién es** (bullets del ICP: inmobiliarias, clínicas, colegios, servicios profesionales).
-   - **Oferta**: bloque con el CTA y el formulario embebido (ver SOP 04).
+   - **Hero**: título centrado en convertir una comunidad existente en una operación de inscripción,
+     acceso y seguimiento dentro de Telegram; mostrar implementación desde US$1,000 y CTA primario.
+   - **Orden narrativo**: abrir con el resultado buscado, hacer visible el costo de dejar el
+     problema igual, explicar qué recibe el cliente, mostrar beneficios concretos, describir el
+     proceso y resolver objeciones con FAQs antes del CTA final.
+   - **Cómo funciona** (breve, 3-4 pasos, sin revelar arquitectura técnica): se identifica dónde
+     se pierden horas u oportunidades en Telegram, se define una métrica antes/después, se diseña
+     el sistema con las herramientas existentes y se mide el cambio.
+   - **Para quién es** (academias, cohortes, membresías premium y formación profesional con Telegram)
+     y para quién no es.
+   - **FAQs**: responder alcance, beneficio diario, medición, precio, integración, garantías y
+     límites de la oferta con lenguaje directo, sin promesas de ingresos o ROI.
+   - **Objeciones y confianza**: incluir un bloque breve de "lo que sí / lo que no" para aclarar
+     que no es un bot genérico ni una promesa de ventas automáticas; el disclaimer debe reforzar
+     confianza cerca de la oferta, no interrumpir el hero.
+   - **Oferta**: bloque con el CTA hacia `/implementar`, donde vive el diagnóstico y formulario
+     (ver SOP 04).
+   - **Gobernanza y confianza**: explicar propiedad de datos, permisos, exportación, retención,
+     supervisión humana de IA y revisión legal cuando corresponda.
    - **Footer**: contacto `partners@thequantpartners.com`, enlace a `/privacidad` y disclaimer
-     de que no se garantizan ventas, ingresos, leads ni ROAS y que la gestión de Ads es aparte.
+     de que no se garantizan matrículas, ingresos, ROI, cumplimiento legal ni resultados específicos.
 3. **CTA primario**: usar un texto orientado a conversación y alcance, como
-   **"Quiero revisar mi sistema de ventas"**,
+   **"Diagnosticar mi operación"**,
    estado `hover`/`focus-visible`/`active` definidos, sin depender solo del color para indicar
    interactividad.
 4. **Responsive y accesibilidad**:

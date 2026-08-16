@@ -12,16 +12,18 @@ La oferta inicial es acceso anticipado a **AttribWA + SpeedLead WA**, descritos 
 
 ## Estado actual
 
-- La unica superficie implementada es [`landings/`](./landings/).
+- La superficie comercial implementada es [`landings/`](./landings/); el backend FastAPI de
+  validación ya está desplegado en Railway.
 - La landing vive en una app independiente Next.js + TypeScript.
-- Rutas actuales: `/` y `/gracias`.
-- La landing captura `gclid` y UTMs en `localStorage`.
-- Eventos definidos: `view_landing`, `submit_form_early_access`,
-  `view_thankyou_upsell`, `click_whatsapp_vip`, `schedule_calcom`.
-- [`landings/app/api/leads/route.ts`](./landings/app/api/leads/route.ts) usa un sink temporal:
-  valida y registra en consola, pero aun no persiste leads en produccion.
-- WhatsApp, Cal.com, GA4/GTM, privacidad, dominio HTTPS y almacenamiento persistente siguen
-  pendientes de configuracion.
+- Rutas actuales: `/`, `/soluciones`, `/implementar`, `/gracias` y `/privacidad`.
+- La landing captura `gclid` y UTMs en `localStorage` y el formulario de implementación envía al
+  backend Railway.
+- Eventos de la oferta vigente: `view_landing`, `submit_implementation_request`,
+  `view_implementation_success` y `click_telegram_implementation`.
+- El backend persiste `implementation_requests` en Postgres e intenta alertar al chat privado de
+  Telegram después del commit.
+- El dominio de producción es `https://quantsystems.thequantpartners.com/`; GA4/GTM requiere
+  terminar la creación del contenedor y publicar su configuración.
 
 ## Arquitectura objetivo
 
@@ -48,8 +50,8 @@ Call2WA y MicroCheckout quedan fuera de alcance.
 5. Mantener mobile-first, accesibilidad, foco visible y cero scroll horizontal.
 6. No guardar secretos. Usar variables `NEXT_PUBLIC_*` solo para valores publicables y variables de
    servidor para integraciones privadas.
-7. El sink temporal de leads debe reemplazarse antes de publicar; no tratarlo como persistencia de
-   producción.
+7. El sink temporal de [`landings/app/api/leads/route.ts`](./landings/app/api/leads/route.ts) no es
+   persistencia de producción; el flujo operativo usa el endpoint FastAPI de implementación.
 8. No implementar el backend completo de AttribWA/SpeedLead WA dentro de `landings/`.
 
 ## Comandos
