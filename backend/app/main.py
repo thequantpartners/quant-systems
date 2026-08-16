@@ -161,6 +161,7 @@ async def lifespan(_: FastAPI):
         connection.execute(text("ALTER TABLE implementation_requests ADD COLUMN IF NOT EXISTS notification_sent BOOLEAN"))
         connection.execute(text("ALTER TABLE implementation_requests ADD COLUMN IF NOT EXISTS telegram_start_token VARCHAR(64)"))
         connection.execute(text("ALTER TABLE implementation_requests ADD COLUMN IF NOT EXISTS telegram_start_expires_at TIMESTAMP WITH TIME ZONE"))
+        connection.execute(text("ALTER TABLE implementation_requests ADD COLUMN IF NOT EXISTS telegram_chat_id VARCHAR(64)"))
     yield
 
 
@@ -311,6 +312,8 @@ def telegram_webhook(
                         send_telegram_message(chat["id"], "Este enlace ha expirado. Vuelve a completar el diagnóstico.")
                         return {"ok": True}
 
+                    request.telegram_chat_id = str(chat["id"])
+                    db.commit()
                     impact_summary = json.loads(request.impact_summary_json)
                     summary = (
                         f"Hola, {request.name}. Recibimos tu diagnóstico para {request.company}.\n\n"
@@ -333,6 +336,22 @@ def telegram_webhook(
                         },
                     )
                     return {"ok": True}
+
+            linked_request = db.scalar(
+                select(ImplementationRequest)
+                .where(ImplementationRequest.telegram_chat_id == str(chat["id"]))
+                .order_by(ImplementationRequest.created_at.desc())
+            )
+            if linked_request:
+                send_telegram_message(
+                    chat["id"],
+                    (
+                        f"Gracias. Ya recibimos tu mensaje sobre {linked_request.company}.\n\n"
+                        "Una persona del equipo revisará el contexto de tu diagnóstico y te responderá por aquí "
+                        "para explicarte el siguiente paso del piloto."
+                    ),
+                )
+                return {"ok": True}
 
             send_telegram_message(
                 chat["id"],

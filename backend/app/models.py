@@ -31,6 +31,7 @@ class ImplementationRequest(Base):
     notification_sent: Mapped[bool | None] = mapped_column(nullable=True, default=None)
     telegram_start_token: Mapped[str | None] = mapped_column(String(64), unique=True, nullable=True)
     telegram_start_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    telegram_chat_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     status: Mapped[str] = mapped_column(String(40), nullable=False, default="received")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
