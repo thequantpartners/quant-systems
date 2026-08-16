@@ -3,7 +3,7 @@
 ## Objetivo
 
 Definir y lanzar una prueba acotada de Google Ads Search para medir demanda de implementaciones
-operativas en Telegram para comunidades de trading, forex y educación financiera.
+operativas en Telegram para academias y comunidades premium de formación.
 
 ## Prerrequisitos
 
@@ -16,9 +16,9 @@ operativas en Telegram para comunidades de trading, forex y educación financier
 
 - **Ubicación**: Perú; concentrar en Lima solo si Keyword Planner muestra mejor densidad.
 - **Idioma**: español.
-- **Audiencia**: operadores o administradores de comunidades de trading, forex y educación
-  financiera que usan Telegram y sufren seguimiento manual, soporte repetitivo o problemas de
-  coordinación.
+- **Audiencia**: fundadores, coordinadores y administradores de academias, cohortes y comunidades
+  premium de formación que usan Telegram y sufren seguimiento manual, soporte repetitivo o
+  problemas de acceso y coordinación.
 - No anunciar señales, recomendaciones de inversión, rentabilidad, apuestas o ganancias.
 
 ## Estructura de campaña propuesta
@@ -41,10 +41,10 @@ Campaña: QuantSystems - Search - Validación Telegram
     "seguimiento de leads telegram"
     "responder mensajes telegram negocio"
 
-  Ad Group 3: Trading y educación
-    "gestionar comunidad trading telegram"
-    "automatizar comunidad forex"
+  Ad Group 3: Academias y alumnos
     "gestionar alumnos telegram"
+    "automatizar academia telegram"
+    "comunidad de alumnos telegram"
 ```
 
 Validar cada término en Keyword Planner y eliminar búsquedas sin intención comercial. No repartir

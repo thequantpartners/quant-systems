@@ -86,7 +86,7 @@ información personal que Google Ads exige manejar con cuidado.
 
 ## Aplicación específica a QuantSetters
 
-- La landing debe dirigirse a comunidades de trading, forex y educación financiera que operen en
+- La landing debe dirigirse a academias y comunidades premium de formación que operen en
   Telegram. El mensaje debe ser educativo y operativo: no ofrecer señales, recomendaciones
   personalizadas, apuestas, rentabilidad, ventas, ingresos ni resultados específicos.
 - El formulario (SOP 04) debe exigir consentimiento explícito para evaluación comercial y contacto
