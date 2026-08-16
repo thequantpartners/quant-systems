@@ -48,7 +48,7 @@ export async function POST(request: Request) {
 
   // Temporary sink: production persistence must be configured before paid traffic.
   const token = randomBytes(18).toString("base64url");
-  const botUrl = process.env.NEXT_PUBLIC_TELEGRAM_BOT_URL ?? "https://t.me/quantsystems_bot";
+  const botUrl = process.env.NEXT_PUBLIC_TELEGRAM_BOT_URL ?? "https://t.me/quantsystemss_bot";
   return NextResponse.json({
     ok: true,
     telegram_url: `${botUrl}?start=diag_${token}`

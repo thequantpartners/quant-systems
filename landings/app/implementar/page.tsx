@@ -41,7 +41,7 @@ export default function ImplementPage() {
   const [requestId, setRequestId] = useState("");
   const [telegramUrl, setTelegramUrl] = useState("");
   const [contact, setContact] = useState({ name: "", company: "", email: "", phone: "" });
-  const telegramBotUrl = process.env.NEXT_PUBLIC_TELEGRAM_BOT_URL ?? "https://t.me/quantsystems_bot";
+  const telegramBotUrl = process.env.NEXT_PUBLIC_TELEGRAM_BOT_URL ?? "https://t.me/quantsystemss_bot";
 
   const solutionName = useMemo(
     () => solutions.find((item) => item.slug === diagnostic.solution)?.vertical ?? "una solución por definir",

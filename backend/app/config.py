@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     n8n_webhook_secret: str | None = None
     telegram_bot_token: str | None = None
     telegram_chat_id: str | None = None
-    telegram_bot_username: str = "quantsystems_bot"
+    telegram_bot_username: str = "quantsystemss_bot"
     telegram_webhook_secret: str | None = None
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
