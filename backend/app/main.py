@@ -249,7 +249,7 @@ def finish_qualification(db: Session, session: TelegramQualificationSession, cha
             ),
             {
                 "inline_keyboard": [
-                    [{"text": "Ver demo de Mini App", "url": demo_url}],
+                [{"text": "Ver demo de Mini App", "web_app": {"url": demo_url}}],
                     [
                         {"text": "Quiero empezar", "callback_data": "qual_activate"},
                         {"text": "Hablar con un humano", "callback_data": "qual_handoff"},

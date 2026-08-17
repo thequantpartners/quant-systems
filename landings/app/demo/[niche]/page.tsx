@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import TelegramDemoRuntime from "./telegram-demo";
 
 type Demo = {
   eyebrow: string;
@@ -52,6 +53,7 @@ export default function DemoPage({ params }: { params: { niche: string } }) {
 
   return (
     <main style={pageStyle}>
+      <TelegramDemoRuntime />
       <div style={{ width: "min(100%, 560px)", margin: "0 auto" }}>
         <p
           style={{
