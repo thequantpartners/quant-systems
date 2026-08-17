@@ -2,79 +2,67 @@
 
 ## Objetivo
 
-Quant Setters valida una oferta para empresas de Peru que invierten en Google Ads y reciben leads
-por WhatsApp. La validacion ocurre antes de construir el producto completo:
+QuantSetters construye un SaaS Telegram-native para negocios que ya operan con bots, grupos,
+comunidades o canales de Telegram. El sistema debe ayudarlos a vender mas o ahorrar tiempo mediante
+automatizaciones, inteligencia y Mini Apps prearmadas.
 
-`Google Ads -> lead -> WhatsApp -> conversacion calificada -> venta`
+La experiencia completa debe vivir dentro de Telegram:
 
-La oferta inicial es acceso anticipado a **AttribWA + SpeedLead WA**, descritos en
-[`plan.md`](./plan.md).
+`anuncio -> bot -> precalificacion -> nicho -> Mini App demo -> activacion -> primer valor`
 
-## Estado actual
+El primer mercado es Peru. El producto inicial tendra tres nichos seleccionados mediante
+investigacion, no por suposicion.
 
-- La superficie comercial implementada es [`landings/`](./landings/); el backend FastAPI de
-  validación ya está desplegado en Railway.
-- La landing vive en una app independiente Next.js + TypeScript.
-- Rutas actuales: `/`, `/soluciones`, `/implementar`, `/gracias` y `/privacidad`.
-- La landing captura `gclid` y UTMs en `localStorage` y el formulario de implementación envía al
-  backend Railway.
-- Eventos de la oferta vigente: `view_landing`, `submit_implementation_request`,
-  `view_implementation_success` y `click_telegram_implementation`.
-- El backend persiste `implementation_requests` en Postgres e intenta alertar al chat privado de
-  Telegram después del commit.
-- El dominio de producción es `https://quantsystems.thequantpartners.com/`; GA4/GTM requiere
-  terminar la creación del contenedor y publicar su configuración.
+## Reglas de producto
+
+1. Leer primero [`plan.md`](./plan.md) antes de cambiar arquitectura, copy o alcance.
+2. No asumir una landing externa como superficie principal de adquisicion o producto.
+3. Diseñar para bots nuevos provisionados por la plataforma y bots existentes del cliente.
+4. Las Mini Apps deben ser experiencias interactivas con un resultado demostrable, no solo mockups.
+5. Considerar grupos, comunidades y canales como superficies de valor de primera clase.
+6. No prometer ingresos garantizados, automatizacion total ni escasez artificial.
+7. Identificar siempre cuando interviene IA, ofrecer handoff humano y soportar opt-out.
+8. No guardar tokens, API keys, contrasenas ni secretos en el repositorio o en el cliente.
+9. Validar permisos, anti-spam, auditoria y aislamiento multi-tenant antes de automatizar espacios
+   comunitarios.
+10. Revisar privacidad, consentimiento, transparencia de IA y obligaciones aplicables en Peru antes
+    de publicar un flujo.
+11. Mantener mobile-first, accesibilidad, foco visible y cero scroll horizontal en las Mini Apps.
+12. No agregar dependencias sin necesidad.
 
 ## Arquitectura objetivo
 
-Monorepo simple, sin `apps/` ni `packages/`:
+- `backend/`: FastAPI + SQLAlchemy para tenancy, Telegram, bots, plantillas, Mini Apps, eventos,
+  consentimiento, automatizaciones y auditoria.
+- `dashboard/`: consola secundaria para operaciones y configuracion avanzada.
+- `modules/`: automatizaciones Telegram documentadas por modulo.
+- `landings/`: no es la superficie principal; cualquier uso debe justificarse como soporte secundario.
 
-- `backend/`: FastAPI + SQLAlchemy; `User` funciona como tenant en MVP.
-- `dashboard/`: Next.js para setup, campañas, logs, planes y futuro embudo.
-- `baileys-server/`: Node/Baileys para WhatsApp durante el MVP.
-- Fases siguientes: Alembic, Redis + RQ, tracking redirect propio, idempotencia de webhooks,
-  conversiones offline mejoradas y dashboard de embudo.
+No migrar el backend a otro stack sin una decision explicita documentada.
 
-No migrar el backend a Node/Fastify ni reemplazar Baileys durante el MVP. WhatsApp Cloud API,
-Call2WA y MicroCheckout quedan fuera de alcance.
+## Validacion
 
-## Reglas de trabajo
+La validacion debe seguir este orden:
 
-1. Leer primero [`plan.md`](./plan.md) y los SOPs relevantes en [`SOPs/`](./SOPs/).
-2. Para la validacion seguir el orden: políticas → fundamentos → landing → formulario → gracias →
-   tracking → campaña → checklist.
-3. No prometer resultados garantizados ni usar escasez falsa. El cupo de “primeras 10 empresas”
-   debe ser real.
-4. No agregar dependencias sin necesidad. La landing usa las dependencias declaradas en su propio
-   `package.json`.
-5. Mantener mobile-first, accesibilidad, foco visible y cero scroll horizontal.
-6. No guardar secretos. Usar variables `NEXT_PUBLIC_*` solo para valores publicables y variables de
-   servidor para integraciones privadas.
-7. El sink temporal de [`landings/app/api/leads/route.ts`](./landings/app/api/leads/route.ts) no es
-   persistencia de producción; el flujo operativo usa el endpoint FastAPI de implementación.
-8. No implementar el backend completo de AttribWA/SpeedLead WA dentro de `landings/`.
+1. investigacion de nichos y operaciones en Telegram;
+2. casos de uso y propuesta de valor;
+3. capacidades tecnicas, permisos y seguridad de Telegram;
+4. journey del bot y criterios de precalificacion;
+5. Mini Apps demo;
+6. IA, datos, consentimiento y cumplimiento;
+7. tracking y criterios de activacion;
+8. anuncios con deep links a Telegram;
+9. prueba con usuarios reales y decision go/no-go.
 
 ## Comandos
 
-Desde `landings/`:
-
-```bash
-npm install
-npm run dev
-npm run build
-npm run start
-```
-
-## Criterio de finalizacion de la validacion
-
-Antes de lanzar anuncios deben estar definidos el almacenamiento de leads, WhatsApp, Cal.com,
-GA4/GTM, aviso de privacidad, dominio HTTPS y el responsable de revisar leads durante la prueba.
+Los comandos dependen de cada superficie. Consultar el `package.json`, `requirements.txt` o
+`AGENTS.md` especifico antes de ejecutar instalaciones o builds.
 
 ## Estructura de modulos n8n
 
-- `modules/` contiene los proyectos y automatizaciones n8n del sistema.
-- Este archivo define el contexto y las reglas generales de todo QuantSetters.
-- Cada modulo debe tener su propio `AGENTS.md` con su objetivo, alcance, arquitectura,
-  variables de entorno, credenciales requeridas, workflows y comandos de operacion.
-- Las reglas de un `AGENTS.md` mas especifico aplican dentro de su carpeta, siempre que no
-  contradigan las reglas globales de este archivo.
+- `modules/` contiene proyectos y automatizaciones n8n del sistema.
+- Cada modulo debe tener su propio `AGENTS.md` con objetivo, alcance, arquitectura, variables,
+  credenciales requeridas, workflows, comandos, errores, reintentos, idempotencia y estado.
+- Las reglas de un `AGENTS.md` mas especifico aplican dentro de su carpeta, sin contradecir este
+  archivo ni [`plan.md`](./plan.md).

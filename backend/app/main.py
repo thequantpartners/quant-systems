@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 
 from .config import get_settings
 from .db import Base, engine, get_db
-from .models import ImplementationRequest
+from .models import ImplementationRequest, TelegramQualificationSession
 from .schemas import ImplementationRequestCreate, ImplementationRequestResponse, TelegramStartResponse
 
 logger = logging.getLogger(__name__)
@@ -139,6 +139,126 @@ def answer_telegram_callback_query(callback_query_id: str, text: str) -> None:
         raise HTTPException(status_code=502, detail="No se pudo responder al botón.") from error
 
 
+def telegram_buttons(rows: list[tuple[str, str]]) -> dict[str, Any]:
+    return {
+        "inline_keyboard": [
+            [{"text": label, "callback_data": callback_data}]
+            for label, callback_data in rows
+        ]
+    }
+
+
+def qualification_session(
+    db: Session,
+    chat_id: int | str,
+    user_id: int | str | None = None,
+) -> TelegramQualificationSession:
+    session = db.scalar(
+        select(TelegramQualificationSession).where(
+            TelegramQualificationSession.telegram_chat_id == str(chat_id)
+        )
+    )
+    if session is None:
+        session = TelegramQualificationSession(
+            telegram_chat_id=str(chat_id),
+            telegram_user_id=str(user_id) if user_id is not None else None,
+        )
+        db.add(session)
+    elif user_id is not None:
+        session.telegram_user_id = str(user_id)
+    return session
+
+
+def qualification_step_message(
+    db: Session,
+    session: TelegramQualificationSession,
+    chat_id: int | str,
+) -> None:
+    messages: dict[str, tuple[str, list[tuple[str, str]]]] = {
+        "welcome": (
+            "Antes de recomendarte una demo, necesito entender cómo opera tu negocio en Telegram.",
+            [("Comenzar", "qual_start"), ("No ahora", "qual_stop")],
+        ),
+        "niche": (
+            "¿Qué describe mejor tu operación?",
+            [
+                ("Cursos, mentorías o formación", "qual_niche:education"),
+                ("Crypto o comunidad financiera", "qual_niche:crypto"),
+                ("Trading, forex o membresías", "qual_niche:trading"),
+                ("No estoy seguro", "qual_niche:unknown"),
+            ],
+        ),
+        "telegram_surface": (
+            "¿Dónde ocurre principalmente tu operación?",
+            [
+                ("Bot", "qual_surface:bot"),
+                ("Canal", "qual_surface:channel"),
+                ("Grupo o comunidad", "qual_surface:group"),
+                ("Varios espacios", "qual_surface:multiple"),
+            ],
+        ),
+        "problem": (
+            "¿Qué quieres mejorar primero?",
+            [
+                ("Captar y calificar interesados", "qual_problem:sales"),
+                ("Soporte y preguntas repetidas", "qual_problem:support"),
+                ("Acceso, membresías o renovaciones", "qual_problem:access"),
+                ("Entregar contenido o clases", "qual_problem:delivery"),
+            ],
+        ),
+        "offer": (
+            "¿Ya tienes una oferta, servicio, membresía o contenido que vendes?",
+            [
+                ("Sí, está activo", "qual_offer:active"),
+                ("Sí, pero aún lo estoy preparando", "qual_offer:preparing"),
+                ("Todavía no", "qual_offer:none"),
+            ],
+        ),
+    }
+    text, buttons = messages[session.current_step]
+    send_telegram_message(chat_id, text, telegram_buttons(buttons))
+
+
+def finish_qualification(db: Session, session: TelegramQualificationSession, chat_id: int | str) -> None:
+    answers = json.loads(session.answers_json)
+    niche = answers.get("niche")
+    offer = answers.get("offer")
+    session.niche = niche if niche != "unknown" else None
+    session.confidence = 0.8 if niche and niche != "unknown" else 0.35
+    session.eligibility = "accepted" if offer == "active" and niche != "unknown" else "needs_review"
+    session.status = "completed"
+    session.current_step = "completed"
+    db.commit()
+
+    labels = {
+        "education": "educadores, coaches y capacitación",
+        "crypto": "crypto",
+        "trading": "trading y forex",
+    }
+    detected = labels.get(niche, "un nicho por confirmar")
+    if session.eligibility == "accepted":
+        send_telegram_message(
+            chat_id,
+            (
+                f"Tu operación parece encajar con {detected}.\n\n"
+                "Te recomendamos una demo de precalificación y seguimiento. "
+                "En la siguiente versión se abrirá la Mini App para probarla dentro de Telegram.\n\n"
+                "Por ahora, responde a este mensaje si quieres que una persona revise tu caso."
+            ),
+            telegram_buttons([("Hablar con una persona", "qual_handoff")]),
+        )
+        return
+
+    send_telegram_message(
+        chat_id,
+        (
+            f"Detecté una posible operación de {detected}, pero necesito revisar algunos detalles "
+            "antes de recomendarte una plantilla. Puedes pedir ayuda humana para continuar."
+        ),
+        telegram_buttons([("Solicitar revisión", "qual_handoff")]),
+    )
+
+
 def response_for_request(request: ImplementationRequest, *, created: bool) -> ImplementationRequestResponse:
     return ImplementationRequestResponse(
         id=request.id,
@@ -162,6 +282,7 @@ async def lifespan(_: FastAPI):
         connection.execute(text("ALTER TABLE implementation_requests ADD COLUMN IF NOT EXISTS telegram_start_token VARCHAR(64)"))
         connection.execute(text("ALTER TABLE implementation_requests ADD COLUMN IF NOT EXISTS telegram_start_expires_at TIMESTAMP WITH TIME ZONE"))
         connection.execute(text("ALTER TABLE implementation_requests ADD COLUMN IF NOT EXISTS telegram_chat_id VARCHAR(64)"))
+        connection.execute(text("ALTER TABLE telegram_qualification_sessions ADD COLUMN IF NOT EXISTS start_parameter VARCHAR(64)"))
     yield
 
 
@@ -337,6 +458,32 @@ def telegram_webhook(
                     )
                     return {"ok": True}
 
+                session = qualification_session(
+                    db,
+                    chat["id"],
+                    message.get("from", {}).get("id") if isinstance(message.get("from"), dict) else None,
+                )
+                session.start_parameter = token[:64] if token else None
+                session.current_step = "welcome"
+                session.answers_json = "{}"
+                session.niche = None
+                session.confidence = None
+                session.eligibility = None
+                session.status = "active"
+                session.consent_accepted = False
+                db.commit()
+                send_telegram_message(
+                    chat["id"],
+                    (
+                    "Hola. Soy el asistente de QuantSetters.\n\n"
+                    "Ayudamos a negocios que ya operan en Telegram a vender más o ahorrar tiempo "
+                    "con bots y Mini Apps. Te haré unas preguntas breves para recomendarte una demo.\n\n"
+                    "Todavía no ejecutaré ninguna acción en tus grupos o canales."
+                    ),
+                    telegram_buttons([("Comenzar", "qual_start"), ("No ahora", "qual_stop")]),
+                )
+                return {"ok": True}
+
             linked_request = db.scalar(
                 select(ImplementationRequest)
                 .where(ImplementationRequest.telegram_chat_id == str(chat["id"]))
@@ -363,6 +510,63 @@ def telegram_webhook(
     if isinstance(callback_query, dict):
         callback_data = callback_query.get("data", "")
         chat = callback_query.get("message", {}).get("chat", {})
+        callback_user = callback_query.get("from", {})
+        if chat.get("id") is not None and isinstance(callback_data, str) and callback_data.startswith("qual_"):
+            session = qualification_session(
+                db,
+                chat["id"],
+                callback_user.get("id") if isinstance(callback_user, dict) else None,
+            )
+            answer_telegram_callback_query(callback_query["id"], "Guardado")
+
+            if callback_data == "qual_start":
+                session.consent_accepted = True
+                session.current_step = "niche"
+                db.commit()
+                qualification_step_message(db, session, chat["id"])
+                return {"ok": True}
+            if callback_data == "qual_stop":
+                session.status = "opted_out"
+                session.current_step = "stopped"
+                db.commit()
+                send_telegram_message(chat["id"], "De acuerdo. No continuaremos con la precalificación.")
+                return {"ok": True}
+            if callback_data == "qual_handoff":
+                session.status = "human_requested"
+                db.commit()
+                send_telegram_message(
+                    chat["id"],
+                    "Registré tu solicitud. Una persona revisará el resumen antes de recomendarte un siguiente paso.",
+                )
+                return {"ok": True}
+
+            prefix_to_step = {
+                "qual_niche:": "telegram_surface",
+                "qual_surface:": "problem",
+                "qual_problem:": "offer",
+            }
+            for prefix, next_step in prefix_to_step.items():
+                if callback_data.startswith(prefix):
+                    answers = json.loads(session.answers_json)
+                    field_name = {
+                        "qual_niche:": "niche",
+                        "qual_surface:": "telegram_surface",
+                        "qual_problem:": "problem",
+                    }[prefix]
+                    answers[field_name] = callback_data.removeprefix(prefix)
+                    session.answers_json = json.dumps(answers, ensure_ascii=True)
+                    session.current_step = next_step
+                    db.commit()
+                    qualification_step_message(db, session, chat["id"])
+                    return {"ok": True}
+
+            if callback_data.startswith("qual_offer:"):
+                answers = json.loads(session.answers_json)
+                answers["offer"] = callback_data.removeprefix("qual_offer:")
+                session.answers_json = json.dumps(answers, ensure_ascii=True)
+                finish_qualification(db, session, chat["id"])
+                return {"ok": True}
+
         if callback_data.startswith("diag_confirm:") and chat.get("id") is not None:
             answer_telegram_callback_query(callback_query["id"], "Diagnóstico confirmado")
             send_telegram_message(

@@ -38,3 +38,34 @@ class ImplementationRequest(Base):
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
+
+
+class TelegramQualificationSession(Base):
+    __tablename__ = "telegram_qualification_sessions"
+    __table_args__ = (
+        Index("ix_telegram_qualification_sessions_chat_id", "telegram_chat_id"),
+        Index("ix_telegram_qualification_sessions_status", "status"),
+    )
+
+    id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
+    telegram_chat_id: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    telegram_user_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    start_parameter: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    current_step: Mapped[str] = mapped_column(String(40), nullable=False, default="welcome")
+    answers_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    niche: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    confidence: Mapped[float | None] = mapped_column(nullable=True)
+    eligibility: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, default="active")
+    consent_accepted: Mapped[bool] = mapped_column(nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )

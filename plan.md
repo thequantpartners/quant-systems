@@ -1,96 +1,174 @@
-# Plan: AttribWA + SpeedLead WA (MVP) — evolución de QSS/GoogleMaker en QuantSetters
+# Plan: SaaS Telegram-native para ventas y automatizacion
 
-## Problema y enfoque
+## Vision
 
-El plan original (ecosistema Google Ads + WhatsApp multi-tenant) se adapta para construirse
-como una **evolución** del sistema ya existente en `GoogleMaker` (QSS — Quant Sales System),
-no como un monorepo Node nuevo desde cero. QSS ya tiene, en producción/desarrollo:
+QuantSetters sera un SaaS que vive dentro de Telegram para negocios que ya operan mediante bots,
+grupos, comunidades o canales. El producto ayudara a vender mas y ahorrar tiempo mediante
+automatizaciones, inteligencia y Mini Apps prearmadas, sin exigir que el cliente diseñe interfaces
+desde cero ni conozca la complejidad tecnica de Telegram.
 
-- Backend FastAPI + SQLAlchemy (SQLite local / Postgres en Railway), con `User` actuando como
-  tenant/cliente, `Lead` con `gclid`/UTMs, `GoogleAdsCredential` (OAuth cifrado).
-- `services/google_ads_service.py` con `upload_offline_conversion` (ConversionUploadService)
-  ya funcionando, pero solo con GCLID crudo (sin wbraid/gbraid, sin enhanced conversions).
-- `baileys-server` (Node, WhatsApp no oficial) + `services/baileys_service.py` para notificar/enviar.
-- `routers/webhooks.py` con un **hack de atribución**: extrae `gclid--utm_source--utm_campaign`
-  de un texto `Ref: ...` embebido en el mensaje de WhatsApp vía regex. Esto es exactamente lo que
-  la Fase 1 del plan (AttribWA) debe reemplazar por un tracking redirect propio.
-- Dashboard Next.js (`dashboard/app/dashboard`) con setup-guide, campaigns, logs, planes.
-- Pagos vía Mercado Pago, agenda vía Cal.com — fuera de alcance de este MVP.
+La adquisicion tambien sera Telegram-native:
 
-### Decisiones ya confirmadas con el usuario
+`anuncio -> deep link al bot -> precalificacion -> deteccion de nicho -> elegibilidad -> Mini App demo -> activacion`
 
-1. **Ubicación**: copiar/mover el código relevante de `GoogleMaker` (backend, dashboard,
-   baileys-server) hacia `QuantSetters` y continuar el desarrollo ahí.
-2. **Backend**: se mantiene Python/FastAPI + SQLAlchemy (no se migra a Node/Fastify/BullMQ).
-3. **WhatsApp MVP**: se mantiene Baileys (no oficial) para velocidad; migración a WhatsApp
-   Cloud API oficial de Meta queda para Fase 2 (junto con Call2WA).
-4. **Multi-tenant**: se mantiene el modelo actual `User` = tenant/cliente (sin tabla `tenants`
-   separada) para el MVP; se reevalúa si aparece necesidad de equipos por cliente.
+## Decisiones confirmadas
 
-### Gaps identificados (código actual vs. plan objetivo)
+1. La experiencia principal no dependera de una landing externa.
+2. El primer mercado sera Peru.
+3. Se investigaran y seleccionaran tres nichos que ya usen Telegram en su operacion.
+4. El bot de QuantSetters precalificara, detectara el nicho y mostrara la demo apropiada.
+5. El sistema soportara bots nuevos provisionados por la plataforma y bots existentes del cliente.
+6. Habra tres Mini Apps demo, una por nicho, con plantillas prearmadas.
+7. El producto debera atender tambien grupos, comunidades y canales, no solo conversaciones 1:1.
+8. La IA tendra que ser transparente, auditable y alineada con las obligaciones aplicables en Peru.
 
-- Atribución frágil: regex `Ref: gclid--utm_source--utm_campaign` dentro del texto de WhatsApp,
-  sin `tracking_session`, sin TTL, sin redirect propio.
-- Conversión offline solo con GCLID crudo: falta soporte `wbraid`/`gbraid`, enhanced conversions
-  for leads (hash SHA-256 de email/teléfono normalizado E.164), y persistencia de diagnóstico
-  (`accepted`/`pending`/`partial_failure`/`failed`).
-- Webhooks ejecutan lógica inline + `asyncio.create_task` "fire and forget": sin idempotencia,
-  sin reintentos con backoff, sin dead-letter, sin auditoría.
-- No existen tablas `inbound_events`, `outbound_deliveries`, `job_attempts`, `audit_logs`.
-- No hay integración de Google Lead Forms todavía.
-- El dashboard no muestra el embudo `lead -> conversación -> calificado -> venta`, ni latencia,
-  ni estado de sincronización de conversiones.
+## Investigacion previa al MVP
 
-## Arquitectura de destino (adaptada al stack existente)
+### Nichos
 
-- Se preserva el monorepo simple: `backend/` (FastAPI), `dashboard/` (Next.js), `baileys-server/`
-  (Node). No se crea una estructura `apps/`+`packages/` Node nueva.
-- Se introduce **Redis + RQ** (worker Python) como cola ligera para desacoplar los webhooks
-  (que deben responder rápido y solo validar/deduplicar/encolar) de las llamadas externas
-  (Google Ads upload, envío WhatsApp, reintentos). Es la adaptación más simple de "BullMQ" al
-  stack Python ya existente; puede ajustarse a Celery si en implementación se prefiere.
-- Nuevas tablas (vía Alembic): `tracking_sessions`, `inbound_events`, `outbound_deliveries`,
-  `job_attempts`, `audit_logs`; se extiende `Lead` con `consent_at`, `source_confidence`,
-  `wbraid`, `gbraid`, `funnel_stage`.
-- Nuevos módulos de servicio: `services/tracking.py` (captura/redirect), `services/queue.py`
-  (enqueue/dequeue RQ), mejora de `services/google_ads_service.py` (enhanced conversions).
+Investigar y rankear candidatos con estos criterios:
 
-## Fases y entregables (orden)
+- actividad operativa comprobable en Telegram;
+- problemas frecuentes de ventas, soporte, calificacion o administracion;
+- capacidad y disposicion de pago;
+- posibilidad de demostrar valor dentro de una Mini App;
+- acceso comercial inicial en Peru;
+- riesgos legales, de spam o de moderacion.
 
-0. **Migrar base de código**: copiar `backend/`, `dashboard/`, `baileys-server/` de GoogleMaker
-   a QuantSetters; ajustar `.env`/remotes/CORS; smoke test local (`docker-compose up`).
-1. **ADR corto**: alcance MVP, ICP inicial, países, modelo de atribución con niveles de
-   confianza, política de datos y retención (documento corto en `docs/`).
-2. **Esquema de datos**: migraciones Alembic para las tablas nuevas y extensión de `Lead`.
-3. **Cola/worker (Redis + RQ)**: mover llamadas externas del `asyncio.create_task` inline a
-   jobs con reintentos exponenciales, límite por tenant y dead-letter queue.
-4. **Tracking redirect propio**: endpoint/página que captura `gclid`/`wbraid`/`gbraid`/UTMs en
-   un `tracking_session` (TTL) antes de abrir el deep link `wa.me`; reemplaza el regex `Ref:`.
-5. **Conversión offline mejorada**: soporte `wbraid`/`gbraid`, enhanced conversions for leads
-   (datos hasheados) cuando no hay click id, y persistencia de `conversion_events` con estado.
-6. **Idempotencia de webhooks**: cada endpoint entrante (Baileys/WhatsApp, Google, Mercado Pago)
-   valida firma, calcula clave `(tenant_id, provider, external_event_id)`, inserta en
-   `inbound_events` único antes de encolar; responde 200/202 sin ejecutar llamadas externas.
-7. **Google Lead Forms**: nuevo router webhook, dedup, crea `Lead`, encola plantilla de
-   bienvenida por WhatsApp vía Baileys (SpeedLead WA).
-8. **Dashboard de embudo**: nueva vista en `dashboard/app/dashboard` con
-   `lead -> conversación -> calificado -> venta`, latencia p95, errores de atribución y estado
-   de sync (`accepted`/`pending`/`partial_failure`/`failed`).
-9. **Seguridad/consentimiento**: reutilizar `encryption.py` para tokens; agregar campos de
-   consentimiento/fuente/opt-out y retención configurable por tenant.
-10. **Pruebas**: unitarias (normalización/hash, dedupe, firma, cálculo de clave idempotente),
-    integración (webhook -> cola -> worker -> mock Google Ads/Baileys), piloto con una cuenta
-    por vertical antes de habilitar multi-cuenta masivo.
+La seleccion final debe producir tres nichos, sus perfiles de comprador y un caso de uso principal
+para cada uno.
 
-### Fuera de alcance de este MVP (Fase 2+, no se planifica en detalle aún)
+### Uso de Telegram por negocios
 
-- Migración de WhatsApp a Cloud API oficial de Meta (plantillas aprobadas, Business verification).
-- Call2WA (integración de telefonía/llamadas perdidas).
-- MicroCheckout WA (catálogo, pagos, Shopify).
+Para cada nicho documentar como se usan:
 
-## Notas
+- bots y flujos de bienvenida;
+- grupos y comunidades de pago o abiertas;
+- canales de contenido, anuncios y ofertas;
+- moderacion, soporte y derivacion a humanos;
+- captacion, calificacion y seguimiento;
+- pagos, reservas, acceso, renovaciones o entregas;
+- metricas que demuestren ingresos o ahorro de tiempo.
 
-- Redis + RQ es una recomendación de simplicidad; puede reevaluarse por Celery si el equipo
-  lo prefiere durante la implementación.
-- El regex `Ref: gclid--utm--campaign` en `routers/webhooks.py` debe purgarse una vez el
-  tracking redirect esté operativo (regla de auditoría proactiva del `AGENTS.md` de QSS).
+## Experiencia del producto
+
+### Bot de adquisicion y precalificacion
+
+1. El anuncio abre un deep link al bot de QuantSetters.
+2. El bot explica que es un sistema automatizado y solicita consentimiento cuando corresponda.
+3. Hace preguntas breves sobre operacion en Telegram, oferta, audiencia y cuello de botella.
+4. Detecta el nicho entre los tres soportados y estima si existe ajuste.
+5. Si el prospecto es elegible, abre la Mini App demo correspondiente.
+6. La demo guia al usuario a activar una plantilla y alcanzar un primer resultado.
+7. Si no es elegible, ofrece una salida clara: otra plantilla, lista de espera o contacto humano.
+
+### Tres Mini Apps demo
+
+Cada demo debe ser interactiva y mostrar un resultado, no solo una maqueta visual. Como minimo debe
+incluir:
+
+- problema y resultado esperado del nicho;
+- datos de ejemplo claramente identificados;
+- recorrido principal de la plantilla;
+- llamada a activar, personalizar o solicitar ayuda;
+- medicion de apertura, avance, activacion y primer valor.
+
+Los nombres y casos de uso concretos se definiran despues de la investigacion de nichos.
+
+### Operacion de grupos, comunidades y canales
+
+El producto debe explorar plantillas para:
+
+- onboarding y segmentacion de nuevos miembros;
+- preguntas frecuentes y soporte automatizado;
+- calificacion de interesados y derivacion a ventas;
+- acceso a contenido, eventos o niveles de membresia;
+- encuestas, reactivacion y seguimiento;
+- moderacion, alertas y deteccion de conversaciones relevantes;
+- llamadas a la accion medibles hacia una Mini App.
+
+Todas las funciones que actuen en espacios comunitarios requeriran permisos explicitos de
+administradores, limites anti-spam, registro de acciones y controles de apagado.
+
+## Arquitectura objetivo
+
+- `backend/`: FastAPI y SQLAlchemy para tenancy, identidad Telegram, bots, plantillas, Mini Apps,
+  conversaciones, eventos, consentimiento, automatizaciones y auditoria.
+- `telegram-app/` o equivalente: interfaz principal embebida en Telegram para onboarding, demos,
+  configuracion y uso.
+- `dashboard/`: consola secundaria para operaciones, soporte y configuraciones avanzadas.
+- `modules/`: automatizaciones Telegram separadas por dominio, cada una con su `AGENTS.md`.
+- Persistencia multi-tenant con aislamiento por cliente, ownership explicito de bots y permisos
+  diferenciados para operadores, administradores y miembros.
+
+Antes de prometer una experiencia sin tokens/API keys, validar las capacidades reales de Telegram
+para autenticacion, provisionamiento, conexion de bots, Mini Apps y permisos de grupos/canales. La
+complejidad tecnica debe quedar en la plataforma sin guardar secretos en el cliente.
+
+## Inteligencia y confianza
+
+La capa de inteligencia debe cubrir:
+
+- clasificacion de nicho con nivel de confianza;
+- precalificacion basada en contexto, no solo palabras clave;
+- recomendacion de plantilla;
+- deteccion de intencion y siguiente mejor accion;
+- handoff a una persona;
+- explicacion de decisiones relevantes y registro de auditoria.
+
+El usuario debe saber cuando conversa con IA, poder detener la automatizacion y ejercer opt-out.
+Debe existir una politica de datos, retencion y acceso por tenant.
+
+## Cumplimiento inicial
+
+Antes de lanzar en Peru revisar con asesoramiento legal actualizado:
+
+- proteccion de datos personales y consentimiento;
+- tratamiento de conversaciones y datos de miembros;
+- transparencia y identificacion de sistemas de IA;
+- publicidad, comunicaciones comerciales y opt-out;
+- permisos de administradores en grupos, comunidades y canales;
+- responsabilidades entre QuantSetters y cada negocio cliente;
+- requisitos adicionales si el producto se usa en otro pais.
+
+No publicar promesas garantizadas de ingresos, resultados o automatizacion total.
+
+## Medicion y validacion
+
+Eventos iniciales:
+
+- `telegram_ad_open`;
+- `bot_started`;
+- `qualification_started`;
+- `qualification_completed`;
+- `niche_detected`;
+- `prospect_accepted`;
+- `demo_opened`;
+- `demo_action_completed`;
+- `activation_started`;
+- `activation_completed`;
+- `first_value_reached`;
+- `human_handoff_requested`;
+- `opt_out_requested`.
+
+El criterio de exito debe priorizar prospectos elegibles, demos completadas, activaciones y primer
+valor dentro de Telegram. Los clics y comienzos del bot son señales auxiliares.
+
+## Fases y entregables
+
+0. Investigar los tres nichos y sus operaciones reales en Telegram.
+1. Definir ICP, propuesta de valor, criterios de elegibilidad y casos de uso de grupos/canales.
+2. Validar arquitectura de Telegram, seguridad, permisos y modelo de bots nuevos/existentes.
+3. Diseñar el journey del bot y las tres Mini Apps demo.
+4. Definir datos, tenancy, eventos, IA, consentimiento, auditoria y retencion.
+5. Construir un prototipo funcional del bot de precalificacion y una demo vertical.
+6. Probar activacion con usuarios reales de los tres nichos.
+7. Construir el MVP multi-tenant y las tres demos solo si las señales justifican la inversion.
+
+## Fuera de alcance inicial
+
+- Construir un producto generico para cualquier nicho antes de validar los tres iniciales.
+- Permitir automatizaciones comunitarias sin permisos, auditoria o controles anti-spam.
+- Ocultar al usuario que interactua con IA.
+- Prometer resultados comerciales garantizados.
+- Crear interfaces completas fuera de Telegram como superficie principal.
