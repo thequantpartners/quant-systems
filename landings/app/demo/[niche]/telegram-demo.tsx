@@ -15,7 +15,7 @@ declare global {
 }
 
 export default function TelegramDemoRuntime() {
-  useEffect(() => {
+  const initializeTelegram = () => {
     const telegram = window.Telegram?.WebApp;
     if (!telegram) {
       return;
@@ -23,7 +23,17 @@ export default function TelegramDemoRuntime() {
 
     telegram.ready();
     telegram.expand();
+  };
+
+  useEffect(() => {
+    initializeTelegram();
   }, []);
 
-  return <Script src="https://telegram.org/js/telegram-web-app.js" strategy="afterInteractive" />;
+  return (
+    <Script
+      src="https://telegram.org/js/telegram-web-app.js"
+      strategy="afterInteractive"
+      onLoad={initializeTelegram}
+    />
+  );
 }

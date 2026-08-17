@@ -248,14 +248,22 @@ def finish_qualification(db: Session, session: TelegramQualificationSession, cha
                 "Después elige si quieres empezar o hablar con una persona."
             ),
             {
-                "inline_keyboard": [
-                [{"text": "Ver demo de Mini App", "web_app": {"url": demo_url}}],
-                    [
-                        {"text": "Quiero empezar", "callback_data": "qual_activate"},
-                        {"text": "Hablar con un humano", "callback_data": "qual_handoff"},
-                    ],
-                ]
+                "keyboard": [
+                    [{"text": "Abrir demo Mini App", "web_app": {"url": demo_url}}],
+                ],
+                "resize_keyboard": True,
+                "one_time_keyboard": True,
             },
+        )
+        send_telegram_message(
+            chat_id,
+            "Cuando termines de revisar la demo, elige cómo quieres continuar:",
+            telegram_buttons(
+                [
+                    ("Quiero empezar", "qual_activate"),
+                    ("Hablar con un humano", "qual_handoff"),
+                ]
+            ),
         )
         return
 
