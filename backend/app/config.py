@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     telegram_chat_id: str | None = None
     telegram_bot_username: str = "quantsystemss_bot"
     telegram_webhook_secret: str | None = None
+    telegram_mini_app_base_url: str = "https://quantsystems.thequantpartners.com/demo"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

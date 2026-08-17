@@ -217,14 +217,6 @@ def qualification_step_message(
                 ("Entregar contenido o clases", "qual_problem:delivery"),
             ],
         ),
-        "offer": (
-            "¿Ya tienes una oferta, servicio, membresía o contenido que vendes?",
-            [
-                ("Sí, está activo", "qual_offer:active"),
-                ("Sí, pero aún lo estoy preparando", "qual_offer:preparing"),
-                ("Todavía no", "qual_offer:none"),
-            ],
-        ),
     }
     text, buttons = messages[session.current_step]
     send_telegram_message(chat_id, text, telegram_buttons(buttons))
@@ -233,10 +225,9 @@ def qualification_step_message(
 def finish_qualification(db: Session, session: TelegramQualificationSession, chat_id: int | str) -> None:
     answers = json.loads(session.answers_json)
     niche = answers.get("niche")
-    offer = answers.get("offer")
     session.niche = niche if niche != "unknown" else None
     session.confidence = 0.8 if niche and niche != "unknown" else 0.35
-    session.eligibility = "accepted" if offer == "active" and niche != "unknown" else "needs_review"
+    session.eligibility = "accepted" if niche != "unknown" else "needs_review"
     session.status = "completed"
     session.current_step = "completed"
     db.commit()
@@ -248,15 +239,23 @@ def finish_qualification(db: Session, session: TelegramQualificationSession, cha
     }
     detected = labels.get(niche, "un nicho por confirmar")
     if session.eligibility == "accepted":
+        demo_url = f"{settings.telegram_mini_app_base_url.rstrip('/')}/{niche}"
         send_telegram_message(
             chat_id,
             (
                 f"Tu operación parece encajar con {detected}.\n\n"
-                "Te recomendamos una demo de precalificación y seguimiento. "
-                "En la siguiente versión se abrirá la Mini App para probarla dentro de Telegram.\n\n"
-                "Por ahora, responde a este mensaje si quieres que una persona revise tu caso."
+                "Revisa esta demo de Mini App para ver cómo podríamos ayudarte dentro de Telegram. "
+                "Después elige si quieres empezar o hablar con una persona."
             ),
-            telegram_buttons([("Hablar con una persona", "qual_handoff")]),
+            {
+                "inline_keyboard": [
+                    [{"text": "Ver demo de Mini App", "url": demo_url}],
+                    [
+                        {"text": "Quiero empezar", "callback_data": "qual_activate"},
+                        {"text": "Hablar con un humano", "callback_data": "qual_handoff"},
+                    ],
+                ]
+            },
         )
         return
 
@@ -559,7 +558,7 @@ def telegram_webhook(
                     f"Estado: {session.eligibility or 'Por confirmar'}\n"
                     f"Superficie: {answers.get('telegram_surface', 'No indicada')}\n"
                     f"Problema: {answers.get('problem', 'No indicado')}\n"
-                    f"Oferta: {answers.get('offer', 'No indicada')}\n"
+                    f"Modo de activación: {answers.get('activation_mode', 'No elegido')}\n"
                     f"Chat de origen: {session.telegram_chat_id}\n"
                     f"Sesion: {session.id}"
                 )
@@ -592,11 +591,30 @@ def telegram_webhook(
                     )
                 send_telegram_message(chat["id"], user_message)
                 return {"ok": True}
+            if callback_data == "qual_activate":
+                session.status = "activation_started"
+                session.current_step = "activation"
+                db.commit()
+                send_telegram_message(
+                    chat["id"],
+                    (
+                        "Perfecto. Te guiaré paso a paso.\n\n"
+                        "Primero elegiremos cómo quieres comenzar. No instalaré nada en tus espacios "
+                        "sin tu confirmación."
+                    ),
+                    telegram_buttons(
+                        [
+                            ("Usar un bot nuevo", "activation:new_bot"),
+                            ("Conectar un bot existente", "activation:existing_bot"),
+                            ("Solo quiero probar", "activation:trial"),
+                        ]
+                    ),
+                )
+                return {"ok": True}
 
             prefix_to_step = {
                 "qual_niche:": "telegram_surface",
                 "qual_surface:": "problem",
-                "qual_problem:": "offer",
             }
             for prefix, next_step in prefix_to_step.items():
                 if callback_data.startswith(prefix):
@@ -613,11 +631,40 @@ def telegram_webhook(
                     qualification_step_message(db, session, chat["id"])
                     return {"ok": True}
 
-            if callback_data.startswith("qual_offer:"):
+            if callback_data.startswith("qual_problem:"):
                 answers = json.loads(session.answers_json)
-                answers["offer"] = callback_data.removeprefix("qual_offer:")
+                answers["problem"] = callback_data.removeprefix("qual_problem:")
                 session.answers_json = json.dumps(answers, ensure_ascii=True)
                 finish_qualification(db, session, chat["id"])
+                return {"ok": True}
+
+            if callback_data.startswith("activation:"):
+                activation_mode = callback_data.removeprefix("activation:")
+                session.current_step = "activation_mode"
+                answers = json.loads(session.answers_json)
+                answers["activation_mode"] = activation_mode
+                session.answers_json = json.dumps(answers, ensure_ascii=True)
+                db.commit()
+                messages = {
+                    "new_bot": (
+                        "Empezaremos con un bot gestionado por QuantSetters. "
+                        "En la siguiente pantalla definiremos el nombre, la plantilla y el espacio "
+                        "donde quieres probarlo."
+                    ),
+                    "existing_bot": (
+                        "Te guiaremos para conectar tu bot existente de forma segura. "
+                        "No compartas tokens por este chat; la conexión se hará mediante un flujo protegido."
+                    ),
+                    "trial": (
+                        "Te mostraremos una prueba con datos ficticios para que evalúes el flujo "
+                        "antes de conectar un bot o un grupo."
+                    ),
+                }
+                send_telegram_message(
+                    chat["id"],
+                    messages.get(activation_mode, "Continuemos con una configuración guiada."),
+                    telegram_buttons([("Hablar con un humano", "qual_handoff")]),
+                )
                 return {"ok": True}
 
         if callback_data.startswith("diag_confirm:") and chat.get("id") is not None:
