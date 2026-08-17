@@ -534,10 +534,33 @@ def telegram_webhook(
             if callback_data == "qual_handoff":
                 session.status = "human_requested"
                 db.commit()
-                send_telegram_message(
-                    chat["id"],
-                    "Registré tu solicitud. Una persona revisará el resumen antes de recomendarte un siguiente paso.",
+                answers = json.loads(session.answers_json)
+                summary = (
+                    "🧭 SOLICITUD DE REVISION TELEGRAM\n\n"
+                    f"Nicho: {session.niche or 'Por confirmar'}\n"
+                    f"Confianza: {session.confidence or 0:.2f}\n"
+                    f"Estado: {session.eligibility or 'Por confirmar'}\n"
+                    f"Superficie: {answers.get('telegram_surface', 'No indicada')}\n"
+                    f"Problema: {answers.get('problem', 'No indicado')}\n"
+                    f"Oferta: {answers.get('offer', 'No indicada')}\n"
+                    f"Chat de origen: {session.telegram_chat_id}\n"
+                    f"Sesion: {session.id}"
                 )
+                if settings.telegram_chat_id:
+                    send_telegram_message(settings.telegram_chat_id, summary)
+                    user_message = (
+                        "Registré tu solicitud y envié el resumen al equipo. "
+                        "Una persona revisará tu caso antes de recomendarte un siguiente paso."
+                    )
+                else:
+                    logger.error(
+                        "Human handoff stored without notification: TELEGRAM_CHAT_ID is not configured"
+                    )
+                    user_message = (
+                        "Registré tu solicitud, pero el aviso al equipo no está configurado todavía. "
+                        "Escribe nuevamente para continuar por este chat."
+                    )
+                send_telegram_message(chat["id"], user_message)
                 return {"ok": True}
 
             prefix_to_step = {
