@@ -50,6 +50,7 @@ class TelegramQualificationSession(Base):
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
     telegram_chat_id: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     telegram_user_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    telegram_username: Mapped[str | None] = mapped_column(String(64), nullable=True)
     start_parameter: Mapped[str | None] = mapped_column(String(64), nullable=True)
     current_step: Mapped[str] = mapped_column(String(40), nullable=False, default="welcome")
     answers_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")

@@ -3,6 +3,7 @@ import json
 import logging
 import secrets
 from datetime import datetime, timedelta, timezone
+from urllib.parse import quote
 from urllib.error import HTTPError, URLError
 from urllib.request import Request as UrlRequest
 from urllib.request import urlopen
@@ -169,6 +170,16 @@ def qualification_session(
     return session
 
 
+def prospect_contact_url(session: TelegramQualificationSession) -> str:
+    if session.telegram_username:
+        context = (
+            "Hola, revise tu solicitud de QuantSetters. "
+            f"Quiero ayudarte con tu caso de {session.niche or 'tu negocio'}."
+        )
+        return f"https://t.me/{session.telegram_username}?text={quote(context)}"
+    return f"tg://user?id={session.telegram_user_id or session.telegram_chat_id}"
+
+
 def qualification_step_message(
     db: Session,
     session: TelegramQualificationSession,
@@ -283,6 +294,7 @@ async def lifespan(_: FastAPI):
         connection.execute(text("ALTER TABLE implementation_requests ADD COLUMN IF NOT EXISTS telegram_start_expires_at TIMESTAMP WITH TIME ZONE"))
         connection.execute(text("ALTER TABLE implementation_requests ADD COLUMN IF NOT EXISTS telegram_chat_id VARCHAR(64)"))
         connection.execute(text("ALTER TABLE telegram_qualification_sessions ADD COLUMN IF NOT EXISTS start_parameter VARCHAR(64)"))
+        connection.execute(text("ALTER TABLE telegram_qualification_sessions ADD COLUMN IF NOT EXISTS telegram_username VARCHAR(64)"))
     yield
 
 
@@ -463,6 +475,9 @@ def telegram_webhook(
                     chat["id"],
                     message.get("from", {}).get("id") if isinstance(message.get("from"), dict) else None,
                 )
+                sender = message.get("from")
+                if isinstance(sender, dict):
+                    session.telegram_username = sender.get("username")
                 session.start_parameter = token[:64] if token else None
                 session.current_step = "welcome"
                 session.answers_json = "{}"
@@ -517,6 +532,8 @@ def telegram_webhook(
                 chat["id"],
                 callback_user.get("id") if isinstance(callback_user, dict) else None,
             )
+            if isinstance(callback_user, dict):
+                session.telegram_username = callback_user.get("username")
             answer_telegram_callback_query(callback_query["id"], "Guardado")
 
             if callback_data == "qual_start":
@@ -547,7 +564,20 @@ def telegram_webhook(
                     f"Sesion: {session.id}"
                 )
                 if settings.telegram_chat_id:
-                    send_telegram_message(settings.telegram_chat_id, summary)
+                    send_telegram_message(
+                        settings.telegram_chat_id,
+                        summary,
+                        {
+                            "inline_keyboard": [
+                                [
+                                    {
+                                        "text": "Abrir chat con el prospecto",
+                                        "url": prospect_contact_url(session),
+                                    }
+                                ]
+                            ]
+                        },
+                    )
                     user_message = (
                         "Registré tu solicitud y envié el resumen al equipo. "
                         "Una persona revisará tu caso antes de recomendarte un siguiente paso."
